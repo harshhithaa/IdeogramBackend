@@ -1,0 +1,117 @@
+
+module.exports.Settings = {
+  APP_KEY: null,
+  APP_SECRET: null,
+  ENVIORNMENT : process.env.ENVIORNMENT,
+  PAYMENT_GATEWAY_KEY: process.env.PAYMENT_GATEWAY_KEY,
+  PAYMENT_GATEWAY_SECRET: process.env.PAYMENT_GATEWAY_SECRET,
+  Delivery_Complete_Amount_To_Wallet_Conv_Percentage: null,
+  Pickup_Complete_Amount_To_Wallet_Conv_Percentage: null,
+  Delivery_Wallet_Bonus_Per_X_Rupees: null,
+  Pickup_Wallet_Bonus_Per_X_Rupees: null,
+  Customer_On_Booking_Placed_App_Msg : null,
+  Customer_Booking_On_Accepted_App_Msg : null,
+  Customer_Booking_On_Visit_To_Restaurant_App_Msg : null,
+  Customer_Booking_On_Complete_App_Msg : null,
+  Customer_Booking_On_Cancelled_App_Msg : null,
+  Customer_Booking_On_Req_NotFulfilled_App_Msg : null,
+
+};
+/*
+module.exports.QueueSettings = {
+  QUEUE_PATH: process.env.Queue_Path,
+  RESTAURANT_DELIVERY_QUEUE: process.env.RESTAURANT_DELIVERY_QUEUE,
+  RIDER_NOTIFY_QUEUE: process.env.RIDER_NOTIFY_QUEUE,
+  RESTAURANT_DELIVERY_QUEUE_NAME: process.env.RESTAURANT_DELIVERY_QUEUE_NAME,
+  RIDER_NOTIFY_QUEUE_NAME: process.env.RIDER_NOTIFY_QUEUE_NAME,
+};*/
+
+module.exports.FTPSettings = {
+  host: process.env.FTP_HOST,
+  port: process.env.FTP_PORT,
+  user: process.env.FTP_USER,
+  password: process.env.FTP_PASSWORD,
+  secure: false,
+};
+
+module.exports.FileConfiguration = {
+  FileSize: process.env.FileSize,
+  LocalStorage: process.env.LocalStorage,
+  RemoteStorage: process.env.RemoteStorage,
+  FileUrl: process.env.FileUrl,
+  secure: false,
+};
+
+module.exports.PushNotificationSettings = {
+  Firebase_PN_key: process.env.FIREBASE_PN_KEY,
+  Firebase_Restaurant_PN_Key: process.env.FIREBASE_RESTAURANT_PN_KEY,
+  Firebase_Customer_PN_Key: process.env.FIREABSE_CUSTOMER_PN_KEY,
+  Rider_Delivery_Request_Msg: null,
+  Rider_Delivery_Request_Title: null,
+  Customer_Delivery_On_Accept_By_Restaurant_Msg: null,
+  Customer_Delivery_On_Accept_By_Restaurant_Title: null,
+  Rider_Delivery_On_Reject_By_Restaurant_Msg: null,
+  Rider_Delivery_On_Reject_By_Restaurant_Title: null,
+  Customer_Delivery_On_Reject_By_Restaurant_Msg: null,
+  Customer_Delivery_On_Reject_By_Restaurant_Title: null,
+  Restaurant_Delivery_Request_Msg: null,
+  Restaurant_Delivery_Request_Title: null,
+  Customer_Request_Not_Fulfilled_Title: null,
+  Customer_Request_Not_Fulfilled_Msg: null,
+  Restaurant_Pickup_Request_Msg: null,
+  Restaurant_Pickup_Request_Title: null,
+  Customer_Delivery_On_Accept_By_Rider_Msg: null,
+  Customer_Delivery_On_Accept_By_Rider_Title: null,
+  Customer_Delivery_On_Rider_Complete_Order_Title: null,
+  Customer_Delivery_On_Rider_Complete_Order_Msg: null,
+  Customer_Delivery_On_Rider_Pickup_Order_Title: null,
+  Customer_Delivery_On_Rider_Pickup_Order_Msg: null,
+  Customer_Delivery_On_Restaurant_Prepared_Order_Msg: null,
+  Customer_Delivery_On_Restaurant_Prepared_Order_Title: null,
+  Rider_Delivery_On_Restaurant_Prepared_Order_Title: null,
+  Rider_Delivery_On_Restaurant_Prepared_Order_Msg: null,
+  Customer_Pickup_On_Accept_By_Restaurant_Title: null,
+  Customer_Pickup_On_Accept_By_Restaurant_Msg: null,
+  Customer_Pickup_On_Cancel_By_Restaurant_Title: null,
+  Customer_Pickup_On_Cancel_By_Restaurant_Msg: null,
+  Customer_Pickup_On_Pickup_Prepared_By_Restaurant_Title: null,
+  Customer_Pickup_On_Pickup_Prepared_By_Restaurant_Msg: null,
+  Customer_Pickup_On_Complete_By_Restaurant_Title: null,
+  Customer_Pickup_On_Complete_By_Restaurant_Msg: null,
+  Customer_Push_Notification_Icon: null,
+  Restaurant_Push_Notification_Icon: null,
+  Rider_Push_Notification_Icon: null,
+  Customer_Post_Complete_Delivery_Cancel_By_Restaurant_Title: null,
+  Customer_Post_Complete_Delivery_Cancel_By_Restaurant_Msg: null,
+  Customer_Post_Complete_Pickup_Cancel_By_Restaurant_Title: null,
+  Customer_Post_Complete_Pickup_Cancel_By_Restaurant_Msg: null,
+  Restaurant_Initiate_Refund_Title: null,
+  Restaurant_Initiate_Refund_Msg: null,
+  Customer_On_New_Driver_Assigned_Title: null,
+  Customer_On_New_Driver_Assigned_Msg: null,
+  Customer_On_Replaced_Driver_Title : null,
+  Customer_On_Replaced_Driver_Msg : null,
+  New_Rider_On_Assigned_Delivery_Title : null,
+  New_Rider_On_Assigned_Delivery_Msg : null, 
+  Prev_Rider_On_Delivery_Unassinged_Delivery_Title : null,
+  Prev_Rider_On_Delivery_Unassinged_Delivery_Msg : null,
+  Restaurant_New_Booking_Request_Msg: null,
+  Restaurant_New_Booking_Request_Title: null,
+  Customer_Booking_Request_Not_Fulfilled_Title: null,
+  Customer_Booking_Request_Not_Fulfilled_Msg: null,
+  Customer_Booking_Request_Accepted_Title : null,
+  Customer_Booking_Request_Accepted_Msg : null,
+  Customer_Booking_Visit_Restaurant_Title : null,
+  Customer_Booking_Visit_Restaurant_Msg : null,
+  Customer_Booking_Complete_Title : null,
+  Customer_Booking_Complete_Msg : null,
+  Customer_Booking_Rejected_Title : null,
+  Customer_Booking_Rejected_Msg : null
+
+};
+
+module.exports.MailSettings = {
+  Username : process.env.MailUsername,
+  Password : process.env.MailPassword,
+  CC : process.env.MailCC
+}
