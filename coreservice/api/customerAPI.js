@@ -35,65 +35,6 @@ async function fileUpload(functionContext, resolvedResult) {
   return;
 }
 
-module.exports.GetCustomerDetails = async (req, res) => {
-  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
-
-  logger.logInfo(`GetCustomerDetails invoked()!!`);
-
-  var functionContext = {
-    requestType: requestType.GETCUSTOMERDETAILS,
-    requestID: res.apiContext.requestID,
-    error: null,
-    res: res,
-    logger: logger,
-  };
-
-  var getCustomerDetailsRequest = new coreRequestModel.GetCustomerDetailsRequest(
-    req
-  );
-  logger.logInfo(
-    `GetCustomerDetails() :: customerRef : ${getCustomerDetailsRequest.customerRef}`
-  );
-
-  if (!getCustomerDetailsRequest.customerRef) {
-    functionContext.error = new coreRequestModel.ErrorModel(
-      constant.ErrorMessage.Invalid_Request,
-      constant.ErrorCode.Invalid_Request
-    );
-    logger.logInfo(
-      `GetCustomerDetails() Error:: Invalid Request :: ${JSON.stringify(
-        getCustomerDetailsRequest
-      )}`
-    );
-    getCustomerDetailsResponse(functionContext, null);
-    return;
-  }
-  var requestContext = {
-    customerRef: getCustomerDetailsRequest.customerRef,
-  };
-
-  try {
-    var getCustomerDetailsFromDBResult = await databaseHelper.getCustomerBasicInfo(
-      functionContext,
-      getCustomerDetailsRequest.customerRef
-    );
-
-    getCustomerDetailsResponse(functionContext, getCustomerDetailsFromDBResult);
-  } catch (errGetCustomerDetails) {
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errGetCustomerDetails.ErrorMessage,
-      errGetCustomerDetails.ErrorCode,
-      JSON.stringify(errGetCustomerDetails)
-    );
-    logger.logInfo(
-      `GetCustomerDetails() :: Error :: ${JSON.stringify(
-        errGetCustomerDetails
-      )}`
-    );
-    getCustomerDetailsResponse(functionContext, null);
-  }
-};
-
 module.exports.IsCustomerPresent = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
 
@@ -179,66 +120,6 @@ module.exports.IsCustomerPresent = async (req, res) => {
   }
 };
 
-module.exports.GetCustomerAddressList = async (req, res) => {
-  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
-
-  logger.logInfo(`GetCustomerAddressList invoked()`);
-
-  var functionContext = {
-    requestType: requestType.GETCUSTOMERADDRESSLIST,
-    requestID: res.apiContext.requestID,
-    res: res,
-    error: null,
-    logger: logger,
-  };
-
-  var customerAddressList = new coreRequestModel.GetCustomerAddressListRequest(
-    req
-  );
-  logger.logInfo(
-    `GetCustomerAddressList() :: Customer Ref : ${customerAddressList.customerRef}`
-  );
-
-  if (!customerAddressList.customerRef) {
-    functionContext.error = new coreRequestModel.ErrorModel(
-      constant.ErrorMessage.Invalid_Request,
-      constant.ErrorCode.Invalid_Request
-    );
-    logger.logInfo(
-      `GetCustomerAddressList() Error :: Invalid Request ::  ${JSON.stringify(
-        customerAddressList
-      )}`
-    );
-    customerAddressListResponse(functionContext, null);
-  }
-  var requestContext = {
-    customerRef: customerAddressList.customerRef,
-  };
-
-  try {
-    let GetCustomerAddressListDBResult = await databaseHelper.getCustomerAddressListDB(
-      functionContext,
-      requestContext
-    );
-
-    customerAddressListResponse(
-      functionContext,
-      GetCustomerAddressListDBResult
-    );
-  } catch (errGetCustomerAddressList) {
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errGetCustomerAddressList.ErrorMessage,
-      errGetCustomerAddressList.ErrorCode,
-      JSON.stringify(errGetCustomerAddressList)
-    );
-    logger.logInfo(
-      `isCustomerPresent() :: Error :: ${JSON.stringify(
-        errGetCustomerAddressList
-      )}`
-    );
-    customerAddressListResponse(functionContext, null);
-  }
-};
 
 module.exports.UpdateCustomerDetails = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
@@ -324,7 +205,6 @@ module.exports.UpdateCustomerDetails = async (req, res) => {
   }
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // DELETE MONITORS :: GET
 
@@ -569,93 +449,6 @@ module.exports.SaveScreens = async (req, res) => {
 
 
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-module.exports.SaveCustomerAddress = async (req, res) => {
-  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
-
-  logger.logInfo(`SaveCustomerAddress()`);
-
-  logger.logInfo(
-    `SaveCustomerAddress() : Request Body : ${JSON.stringify(req.body)}`
-  );
-
-  var saveCustomerAddressRequest = new coreRequestModel.SaveCustomerAddressRequest(
-    req
-  );
-
-  var functionContext = {
-    requestType: requestType.SAVECUSTOMERADDRESS,
-    requestID: res.apiContext.requestID,
-    res: res,
-    error: null,
-    logger: logger,
-    customerRef: saveCustomerAddressRequest.customerRef,
-    addressRef: null,
-    currentTs: momentTimezone
-      .utc(new Date(), "YYYY-MM-DD HH:mm:ss.SSS")
-      .tz("Asia/Kolkata")
-      .format("YYYY-MM-DD HH:mm:ss.SSS"),
-  };
-
-  if (
-    !saveCustomerAddressRequest.customerRef ||
-    /*!saveCustomerAddressRequest.address1 ||
-    !saveCustomerAddressRequest.address2 ||
-    !saveCustomerAddressRequest.city ||
-    !saveCustomerAddressRequest.state ||
-    !saveCustomerAddressRequest.pincode ||*/
-    !saveCustomerAddressRequest.latitude ||
-    !saveCustomerAddressRequest.longitude
-    /*!saveCustomerAddressRequest.addressNickName*/
-  ) {
-    functionContext.error = new coreRequestModel.ErrorModel(
-      constant.ErrorMessage.Invalid_Request,
-      constant.ErrorCode.Invalid_Request
-    );
-    logger.logInfo(
-      `SaveCustomerAddress() :: Error :: Invalid Request :: ${JSON.stringify(
-        saveCustomerAddressRequest
-      )}`
-    );
-    saveCustomerAddressResponse(functionContext, null);
-    return;
-  }
-  try {
-    if (!saveCustomerAddressRequest.addressRef) {
-      saveCustomerAddressRequest.addressRef = uuid.GetTimeBasedID();
-    }
-    functionContext.addressRef = saveCustomerAddressRequest.addressRef;
-
-    let saveCustomerAddressInDBResult = await databaseHelper.saveCustomerAddressInDB(
-      functionContext,
-      saveCustomerAddressRequest
-    );
-    saveCustomerAddressResponse(functionContext, saveCustomerAddressInDBResult);
-  } catch (errSaveCustomerAddress) {
-    if (
-      !errSaveCustomerAddress.ErrorMessage &&
-      !errSaveCustomerAddress.ErrorCode
-    ) {
-      logger.logInfo(
-        `SaveCustomerAddress() :: Error :: ${errSaveCustomerAddress}`
-      );
-      functionContext.error = new coreRequestModel.ErrorModel(
-        constant.ErrorMessage.ApplicationError,
-        constant.ErrorCode.ApplicationError,
-        JSON.stringify(errSaveCustomerAddress)
-      );
-    }
-    logger.logInfo(
-      `SaveCustomerAddress() :: Error :: ${JSON.stringify(
-        errSaveCustomerAddress
-      )}`
-    );
-    saveCustomerAddressResponse(functionContext, null);
-  }
-};
-// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // GET PACKAGES //
 
 
@@ -751,9 +544,6 @@ module.exports.GetMonitorItemDetails = async (req, res) => {
       GetMonitorItemDetailsResponse(functionContext, null);
     }
 };
-
-// //////////////////////////////////////////////////////////// -------  MONITORS  -------------- //////////////////////////////////////////////////////////
-
 
 
 
@@ -1390,35 +1180,6 @@ module.exports.CustomerUpload = async (req, res) => {
 };
 
 
-
-var getCustomerDetailsResponse = (functionContext, resolvedResult) => {
-  var logger = functionContext.logger;
-
-  logger.logInfo(`getCustomerDetailsResponse Invoked()`);
-
-  var customerDetailsResponse = new coreRequestModel.GetCustomerDetailsResponse();
-  customerDetailsResponse.RequestID = functionContext.requestID;
-  if (functionContext.error) {
-    customerDetailsResponse.Error = functionContext.error;
-    customerDetailsResponse.Details = null;
-  } else {
-    var customeBasicInfo = resolvedResult.BasicDetails;
-    customerDetailsResponse.Error = null;
-    customerDetailsResponse.Details.FirstName = customeBasicInfo.FirstName;
-    customerDetailsResponse.Details.LastName = customeBasicInfo.LastName;
-    customerDetailsResponse.Details.DateOfBirth = customeBasicInfo.DateOfBirth;
-    customerDetailsResponse.Details.Phone = customeBasicInfo.Phone;
-    customerDetailsResponse.Details.Email = customeBasicInfo.Email;
-  }
-  appLib.SendHttpResponse(functionContext, customerDetailsResponse);
-  logger.logInfo(
-    `getCustomerDetailsResponse  Response :: ${JSON.stringify(
-      customerDetailsResponse
-    )}`
-  );
-  logger.logInfo(`getCustomerDetailsResponse completed`);
-};
-
 var isCustomerPresentResponse = (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
 
@@ -1454,43 +1215,7 @@ var isCustomerPresentResponse = (functionContext, resolvedResult) => {
   logger.logInfo(`isCustomerPresentResponse completed`);
 };
 
-var customerAddressListResponse = (functionContext, resolvedResult) => {
-  var logger = functionContext.logger;
 
-  logger.logInfo(`customerAddressListResponse Invoked()`);
-
-  var customerAddressListDBResponse = new coreRequestModel.GetCustomerAddressListResponse();
-
-  customerAddressListDBResponse.RequestID = functionContext.requestID;
-  if (functionContext.error) {
-    customerAddressListDBResponse.Error = functionContext.error;
-    customerAddressListDBResponse.Details = [];
-  } else {
-    if (resolvedResult.length > 0) {
-      for (var count = 0; count < resolvedResult.length; count++) {
-        customerAddressListDBResponse.Details.push({
-          AddressRef: resolvedResult[count].AddressRef,
-          Address1: resolvedResult[count].Address1,
-          Address2: resolvedResult[count].Address2,
-          City: resolvedResult[count].City,
-          State: resolvedResult[count].State,
-          Pincode: resolvedResult[count].Pincode,
-          Latitude: resolvedResult[count].Latitude,
-          Longitude: resolvedResult[count].Longitude,
-          AddressNickName: resolvedResult[count].AddressNickName,
-        });
-      }
-    }
-    customerAddressListDBResponse.Error = null;
-  }
-  appLib.SendHttpResponse(functionContext, customerAddressListDBResponse);
-  logger.logInfo(
-    `customerAddressListResponse  Response :: ${JSON.stringify(
-      customerAddressListDBResponse
-    )}`
-  );
-  logger.logInfo(`customerAddressListResponse completed`);
-};
 
 var updateCustomerDetailsResponse = (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
@@ -1547,9 +1272,6 @@ var SaveScreensUDELResponse = (functionContext, resolvedResult) => {
 };
 
 
-
-// ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // UPDATE MONITORS ::
 
 var SaveScreensUResponse = (functionContext, resolvedResult) => {
@@ -1576,13 +1298,6 @@ var SaveScreensUResponse = (functionContext, resolvedResult) => {
   logger.logInfo(`SaveScreensUResponse completed`);
 };
 
-
-
-
-
-
-
-// /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Save MOnitors
 
@@ -1613,8 +1328,6 @@ var SaveScreensResponse = (functionContext, resolvedResult) => {
 
 
 
-
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 var saveCustomerAddressResponse = (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
@@ -1667,10 +1380,6 @@ var GetPackageItemDetailsResponse =  (functionContext, resolvedResult) => {
   logger.logInfo(`GetPackageItemDetailsResponse completed`);
 };
 
-
-
-
-// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get Monitors
 
