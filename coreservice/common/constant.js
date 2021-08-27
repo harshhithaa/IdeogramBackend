@@ -152,59 +152,8 @@ module.exports.RequestType = {
   GETCUSTOMERDETAILS: "GCD",
   ISCUSTOMERPRESENT: "ICP",
   SAVESYSTEMUSER: "SSR",
-  ADDRESTUSER: "ARU",
-  AUTHENTICATEREQUEST: "AR",
-  GETCUSTOMERADDRESSLIST: "GCAL",
-  UPDATECUSTOMERDETAILS: "UCD",
-  GETRESTAURANTSLIST: "GRL",
-  SAVECUSTOMERADDRESS: "SCD",
-  RIDERLOGIN: "RL",
-  GETRESTAURANTITEMDETAILS: "GRID",
-  PLACEDELIVERY: "PD",
-  SAVERESTAURANT: "SR",
-  SAVERESTAURANTCONFIGURATION: "SRC",
-  REGISTERDEVICETOKEN: "RRDT",
-  SAVERESTAURANTITEMDETAILS: "SRID",
-  DELIVERYDETAILSFORPUSHNOTIFICATION: "DDFPN",
-  UPDATEDELIVERYSTATUS: "UDS",
-  GETRIDERDETAILS: "GRD",
-  DELIVERYVIEW: "DV",
-  RESTAURANTLOGIN: "RSL",
-  DELIVERYLIST: "DL",
-  RIDERACTIVEDELIVERYLIST: "RADL",
-  GETRESTAURANTFORDELIVERY: "GRFD",
-  RESTAURANTDELIVERYLIST: "RDL",
-  CUSTOMERAPPSETTINGS: "CAS",
-  RESTAURANTAPPSETTINGS: "RAS",
-  CUSTOMERLOGIN: "CL",
-  ADMINLOGIN: "ADCL",
-  RESTAURANTIMAGES: "RI",
-  GETRIDERACTIVEDELIVERY: "GRAD",
-  HASACTIVEPICKUP: "HAP",
-  GETWALLETBALANCE: "GWB",
-  SAVEFAVOURITE: "SF",
-  VALIDATEPLACEPICKUP: "VPP",
-  VALIDATEPLACEDELIVERY: "VPD",
-  GETALLPROMOCODES: "PLFC",
-  PLACEPICKUP: "PP",
-  PICKUPLIST: "PL",
-  UPDATEPICKUPSTATUS: "UPS",
-  PICKUPLIST: "PL",
-  GETNOTIFICATIONLIST: "GNL",
-  RESTAURANTPROFILE: "RP",
-  SAVEFEEDBACK: "SFD",
-  GETRESTAURANTDISHES: "GRD",
-  GETAVAILABLERIDERS: "GAR",
-  EDITDELIVERY: "ED",
-  DISHESFORPICKUP: "DFP",
-  GETRESTAURANTBOOKATABLESETTING: "GRBTS",
-  CONFIRMBOOKTABLE: "CBT",
-  GETBOOKATABLELIST: "GBATL",
-  UPDATEBOOKINGSTATUS :"UBS",
-  GETBOOKINGLISTFORRESTAURANT: "GBLFR",
-  BOOKINGVIEW : "BV",
-  GETBOOKINGCONFIGURATION : "GBC",
-  SAVEBOOKINGCONFIG :"SBC"
+  SAVEMEDIA:"SM",
+  GETADMINCOMPONENTS:"GAC"
 };
 
 module.exports.UserType = {
@@ -214,48 +163,13 @@ module.exports.UserType = {
   SUPERADMIN: 4,
 };
 
-module.exports.RiderVerificationStatus = {
-  PENDING: 1,
-  VERIFIED: 2,
-};
 
 module.exports.CustomerVerificationStatus = {
   PENDING: 1,
   VERIFIED: 2,
 };
 
-module.exports.DeliveryStatus = {
-  DELIVERY_PLACED: 1,
-  DELIVERY_ACCEPTED: 2,
-  DELIVERY_IN_PROGRESS: 3,
-  DELIVERY_CANCELLED_BY_CUSTOMER: 4,
-  DELIVERY_CANCELLED_BY_RIDER: 5,
-  DELIVERY_COMPLETED: 6,
-  DELIVERY_PAYMENT_SUCCESSFUL: 7,
-  DELIVERY_PAYMENT_UNSUCCESSFUL: 8,
-  DELIVERY_FORCE_COMPLETE: 9,
-  RESTAURANT_ACCEPT_DELIVERY: 10,
-  RESTAURANT_REJECT_DELILVERY: 11,
-  DELIVERY_REQUEST_UNFUFILLED: 12,
-  RESTAURANT_DELIVERY_PREPARED: 13,
-  NO_RIDERS_AVAILABLE: 14,
-  DELIVERY_ESTIMATED_BY_CUSTOMER: 15,
-  DELIVERY_PAYMENT_REFUND_BY_RESTAURANT: 16,
-  RIDER_ASSIGNED: 17,
-  RIDER_REPLACED: 18,
-};
 
-module.exports.PickupStatus = {
-  PICKUP_ESTIMATE: 1,
-  PICKUP_PLACED: 2,
-  RESTAURANT_ACCEPT_PICKUP: 3,
-  RESTAURANT_CANCEL_PICKUP: 4,
-  RESTAURANT_PICKUP_PREPARED: 5,
-  PICKUP_COMPLETE: 6,
-  PICKUP_PAYMENT_FAILURE: 7,
-  PICKUP_REQUEST_NOT_FULFILLED: 8,
-  PICKUP_PAYMENT_REFUND_BY_RESTAURANT: 9,
-};
 
 module.exports.PushNotificationType = {
   Rider_Delivery_Request: 1,
@@ -286,17 +200,7 @@ module.exports.PushNotificationType = {
   Customer_Booking_Complete : 26
 };
 
-module.exports.RestaurantUserType = {
-  Type_Owner: 1,
-  Type_Manager: 2,
-  Type_Cashier: 3,
-};
 
-module.exports.DishCategory = {
-  Normal: 1,
-  BestSeller: 2,
-  CustomerPreviousOrder: 3,
-};
 
 module.exports.LoginType = {
   PHONELOGIN: 1,
@@ -329,82 +233,16 @@ module.exports.ServiceSchedule = {
   Stop: 0,
 };
 
-module.exports.DishType = {
-  Combos: 1,
-  Soups: 2,
-  Starters: 3,
-  TandoorSe: 4,
-  SeafoodStarters: 5,
-  SeafoodPrawns: 6,
-  SeafoodKingfish: 7,
-  SeafoodPomfret: 8,
-  SeafoodChonak: 9,
-  SeafoodTamoshi: 10,
-  SeafoodModso: 11,
-  SeafoodSquid: 12,
-  SeafoodCrabs: 13,
-  SeafoodMackeral: 14,
-  ContinentalPicks: 15,
-  IndianMainCourseVeg: 16,
-  IndianMainCourseNonVeg: 17,
-  GoanCurries: 18,
-  ChineseMainCourse: 19,
-  RiceAndNoodles: 20,
-  Accompaniments: 21,
-  SaladsAndRaita: 22,
-  Desserts: 23,
-};
 
-module.exports.FeedbackRatingType = {
-  Star: 1,
-  Text: 2,
-  Conditional : 3
-};
 
 module.exports.APPTYPE = {
   Android: 1,
   iOS: 2,
 };
 
-module.exports.DishItemImageOperation = {
-  NoChange: 1,
-  ItemImageReplace: 2,
-  DeleteItemImage: 3,
-};
-
-module.exports.BookTableStatus = {
-  BookingPlaced: 1,
-  BookingAccepted: 2,
-  BookingCancelled: 3,
-  CustomerVisited: 4,
-  BookingReqNotfufilled: 5,
-  CustomerBookingCompleted: 6,
-};
-
-module.exports.BookingSlotDayShift = {
-  DayShift_1: 1,
-  DayShift_2: 2,
-};
-
-module.exports.BookingStatusFilter = {
-  ActiveBookings: 1,
-  AllBookings: 2,
-};
-
-module.exports.BookingFeedbackRatingMapKey = {
-  Excellent: 1,
-  Very_Good: 2,
-  Good : 3,
-  Average : 4 ,
-  Poor : 5,
-  NA : 6
-};
-
-module.exports.BookingFeedbackRatingMapValue = {
-  Excellent: "Excellent",
-  Very_Good: "Very Good",
-  Good : "Good",
-  Average : "Average" ,
-  Poor : "Poor",
-  NA : "N/A"
+module.exports.COMPONENTS = {
+  Media: 1,
+  Playlist: 2,
+  Schedule: 3,
+  Monitor: 4,
 };

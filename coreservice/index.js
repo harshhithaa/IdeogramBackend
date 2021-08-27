@@ -12,7 +12,7 @@ var cors = require("cors");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json({ type: "application/json" }));
-app.use(upload.single("Image"));
+app.use(upload.array("Media"));
 
 app.use(cors());
 app.use(function (req, res, next) {

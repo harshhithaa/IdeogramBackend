@@ -243,9 +243,6 @@ module.exports.SaveScreensUDEL = async (req, res) => {
   }
 };
 
-
-// ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // UPDATE MONITORS ::
 
 module.exports.SaveScreensU = async (req, res) => {

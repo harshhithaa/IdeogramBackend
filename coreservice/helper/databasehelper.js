@@ -175,6 +175,53 @@ module.exports.saveSystemUserDB = async (functionContext, resolvedResult) => {
 };
 
 
+module.exports.getAdminComponentsDB = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("getAdminComponentsDB() Invoked!");
+
+  logger.logInfo(`getAdminComponentsDB() :: CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`);
+
+  try {
+    let result = await databaseModule.knex.raw(
+      `CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`
+    );
+
+    logger.logInfo(`getAdminComponentsDB() :: Data Saved Successfully${JSON.stringify(
+        result[0][0]
+      )}`);
+     return {
+      ComponentDetails: result[0][0]
+    };
+  } catch (errgetAdminComponentsDB) {
+    logger.logInfo(
+      `getAdminComponentsDB() :: Error :: ${JSON.stringify(
+        errgetAdminComponentsDB
+      )}`
+    );
+    var errorCode = null;
+    var errorMessage = null;
+    if (
+      errgetAdminComponentsDB.sqlState &&
+      errgetAdminComponentsDB.sqlState == constant.ErrorCode.Invalid_User
+    ) {
+      errorCode = constant.ErrorCode.Invalid_User;
+      errorMessage = constant.ErrorMessage.Invalid_User;
+    } else {
+      errorCode = constant.ErrorCode.ApplicationError;
+      errorMessage = constant.ErrorMessage.ApplicationError;
+    }
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage,
+      errorCode,
+      JSON.stringify(errSaveRestaurantItemDetailsDB)
+    );
+    throw functionContext.error;
+  }
+};
+
 module.exports.getCustomerDetailsFromDB = async (
   functionContext,
   resolvedResult
@@ -1275,3 +1322,39 @@ module.exports.CustomerUploadDB = async (functionContext, resolvedResult) => {
   }
 };
 
+module.exports.saveMediaDB = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("saveMediaDB() Invoked!");
+  try {
+    let rows = await databaseModule.knex.raw(
+      `CALL usp_save_media('${JSON.stringify(resolvedResult)}')`
+    );
+    logger.logInfo(
+      `saveMediaDB() :: Returned Result :: ${JSON.stringify(
+        rows[0][0]
+      )}` 
+    );
+    var result = rows[0][0] ? rows[0][0] : null;
+    return result;
+  } catch (errsaveMediaDB) {
+    logger.logInfo(
+      `saveMediaDB() :: Error :: ${JSON.stringify(
+        errsaveMediaDB
+      )}`
+    );
+  
+ 
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage=constant.ErrorMessage.ApplicationError,
+      errorCode=constant.ErrorCode.ApplicationError,
+      {
+        sqlMessage:errsaveMediaDB.sqlMessage,
+        stack:errsaveMediaDB.stack,
+      }
+    );
+    throw functionContext.error;
+  }
+};

@@ -111,6 +111,36 @@ class saveSystemUserResponse {
     (this.Error = null), (this.Details = {}), (this.RequestID = null);
   }
 }
+class getAdminComponentRequest {
+  constructor(req) {
+    this.componentType = req.body.ComponentType ? req.body.ComponentType : null;
+  }
+}
+
+class getAdminComponentResponse {
+  constructor() {
+    (this.Error = null), (this.Details = {}), (this.RequestID = null);
+  }
+}
+
+class saveMediaRequest {
+  constructor(req) {
+    this.userReference = req.body.UserReference ? req.body.UserReference : null;
+    this.currentTs = momentTimezone
+      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
+      .tz("Asia/Kolkata")
+      .format("YYYY-MM-DD HH:mm:ss ");
+  }
+}
+class saveMediaResponse {
+  constructor() {
+    (this.Error = null),
+      (this.Details = {
+        Media: [],
+      }),
+      (this.RequestID = null);
+  }
+}
 //this is for admin
 class DaterangeRequest {
   constructor(req) {
@@ -1676,6 +1706,10 @@ module.exports.IsAdminPresentRequest = isAdminPresentRequest;
 module.exports.IsAdminPresentResponse = isAdminPresentResponse;
 module.exports.SaveSystemUserRequest = saveSystemUserRequest;
 module.exports.SaveSystemUserResponse = saveSystemUserResponse;
+module.exports.SaveMediaRequest = saveMediaRequest;
+module.exports.SaveMediaResponse = saveMediaResponse;
+module.exports.GetAdminComponentRequest = getAdminComponentRequest;
+module.exports.GetAdminComponentResponse = getAdminComponentResponse;
 
 
 

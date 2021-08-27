@@ -9,3 +9,4 @@ applib/applib-1.0.0.tgz
 *.log
 *.PNG
 applib/package-lock.json
+uploads/
