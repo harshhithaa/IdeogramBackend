@@ -63,7 +63,7 @@ module.exports.savePlaylistRequest = (requestParams) => {
   var joiSchema = joi.object({
     playlistRef: joi.string().required(),
     playlistName: joi.string().required(),
-    description: joi.string().required(),
+    description: joi.string().optional().allow(null),
     isActive: joi.number().required(),
     playlist: joi
     .array()
