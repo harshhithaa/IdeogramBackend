@@ -58,3 +58,22 @@ module.exports.getAdminCompenentRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+
+module.exports.savePlaylistRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    playlistRef: joi.string().required(),
+    playlistName: joi.string().required(),
+    description: joi.string().required(),
+    isActive: joi.number().required(),
+    playlist: joi
+    .array()
+    .items({
+      MediaRef: joi.string().required(),
+      IsActive: joi.number().required().allow(1, 0),
+    })
+    .optional().allow(null),
+    currentTs: joi.string().optional(),
+
+  });
+  return joiSchema.validate(requestParams);
+};

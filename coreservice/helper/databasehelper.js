@@ -1358,3 +1358,40 @@ module.exports.saveMediaDB = async (
     throw functionContext.error;
   }
 };
+
+module.exports.savePlaylistDB = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("savePlaylistDB() Invoked!");
+  try {
+    let rows = await databaseModule.knex.raw(
+      `CALL usp_save_playlist('${JSON.stringify(resolvedResult)}')`
+    );
+    logger.logInfo(
+      `savePlaylistDB() :: Returned Result :: ${JSON.stringify(
+        rows[0][0]
+      )}` 
+    );
+    var result = rows[0][0] ? rows[0][0] : null;
+    return result;
+  } catch (errsavePlaylistDB) {
+    logger.logInfo(
+      `savePlaylistDB() :: Error :: ${JSON.stringify(
+        errsavePlaylistDB
+      )}`
+    );
+  
+ 
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage=constant.ErrorMessage.ApplicationError,
+      errorCode=constant.ErrorCode.ApplicationError,
+      {
+        sqlMessage:errsavePlaylistDB.sqlMessage,
+        stack:errsavePlaylistDB.stack,
+      }
+    );
+    throw functionContext.error;
+  }
+};

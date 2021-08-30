@@ -153,7 +153,8 @@ module.exports.RequestType = {
   ISCUSTOMERPRESENT: "ICP",
   SAVESYSTEMUSER: "SSR",
   SAVEMEDIA:"SM",
-  GETADMINCOMPONENTS:"GAC"
+  GETADMINCOMPONENTS:"GAC",
+  SAVEPLAYLIST:"SP"
 };
 
 module.exports.UserType = {
