@@ -7,6 +7,7 @@ var adminApi = require("../api/adminApi");
 router.post("/savesystemuser", adminApi.SaveSystemUser);
 router.post("/savemedia", adminApi.SaveMedia);
 router.post("/saveplaylist", adminApi.SavePlaylist);
+router.post("/saveschedule", adminApi.SaveSchedule);
 
 module.exports = router;
 

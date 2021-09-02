@@ -138,6 +138,161 @@ module.exports.SaveMedia = async (req, res) => {
   }
 };
   
+module.exports.SavePlaylist = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`SavePlaylist invoked()!!`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.SAVEPLAYLIST,
+    null,
+    res,
+    logger
+  );
+
+  var savePlaylistRequest = new coreRequestModel.SavePlaylistRequest(req);
+  
+    logger.logInfo(
+      `savePlaylist() :: Request Object : ${savePlaylistRequest}`
+    );
+  
+    var validateRequest = joiValidationModel.savePlaylistRequest(
+      savePlaylistRequest
+    );
+  
+    if (validateRequest.error) {
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.Invalid_Request,
+        constant.ErrorCode.Invalid_Request,
+        validateRequest.error.details
+      );
+      logger.logInfo(
+        `savePlaylists() Error:: Invalid Request :: ${JSON.stringify(
+          savePlaylistRequest
+        )}`
+      );
+      savePlaylistResponse(functionContext, null);
+      return;
+    }
+
+
+  var requestContext={
+    fileUploadDetails:[],
+    userRef:functionContext.userRef,
+    file:{
+      fileName:null,
+      fileMimetype:null,
+      srcPath:null,
+      destPath:null,
+      fileUrl:null,
+    }
+  }
+
+
+  try {
+  
+    var savePlaylistInDBResponse = await databaseHelper.savePlaylistDB(
+      functionContext,
+      requestContext
+    );
+    savePlaylistResponse(functionContext, requestContext);
+  } catch (errSavePlaylist) {
+    if (!errSavePlaylist.ErrorMessage && !errSavePlaylist.ErrorCode) {
+      logger.logInfo(`SavePlaylist() :: Error :: ${errSavePlaylist}`);
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError,
+        
+      );
+    }else {
+      logger.logInfo(`SavePlaylist() :: Error :: ${errSavePlaylist}`);
+      functionContext.error = new coreRequestModel.ErrorModel(
+        errSavePlaylist.ErrorMessage ,
+        errSavePlaylist.ErrorCode,
+        errSavePlaylist.ErrorDescription
+        
+      );
+
+    }
+    logger.logInfo(`SavePlaylist() :: Error :: ${JSON.stringify(errSavePlaylist)}`);
+    savePlaylistResponse(functionContext, null);
+  }
+};
+
+module.exports.SaveSchedule = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`SaveSchedule invoked()!!`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.SAVESCHEDULE,
+    null,
+    res,
+    logger
+  );
+
+  var saveScheduleRequest = new coreRequestModel.SaveScheduleRequest(req);
+  
+    logger.logInfo(
+      `saveSchedule() :: Request Object : ${saveScheduleRequest}`
+    );
+  
+    var validateRequest = joiValidationModel.saveScheduleRequest(
+      saveScheduleRequest
+    );
+  
+    if (validateRequest.error) {
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.Invalid_Request,
+        constant.ErrorCode.Invalid_Request,
+        validateRequest.error.details
+      );
+      logger.logInfo(
+        `saveSchedules() Error:: Invalid Request :: ${JSON.stringify(
+          saveScheduleRequest
+        )}`
+      );
+      saveScheduleResponse(functionContext, null);
+      return;
+    }
+
+
+  var requestContext={
+    ...saveScheduleRequest
+  }
+
+
+  try {
+  
+    var saveScheduleInDBResponse = await databaseHelper.saveScheduleDB(
+      functionContext,
+      requestContext
+    );
+    saveScheduleResponse(functionContext, requestContext);
+  } catch (errSaveSchedule) {
+    if (!errSaveSchedule.ErrorMessage && !errSaveSchedule.ErrorCode) {
+      logger.logInfo(`SaveSchedule() :: Error :: ${errSaveSchedule}`);
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError,
+        
+      );
+    }else {
+      logger.logInfo(`SaveSchedule() :: Error :: ${errSaveSchedule}`);
+      functionContext.error = new coreRequestModel.ErrorModel(
+        errSaveSchedule.ErrorMessage ,
+        errSaveSchedule.ErrorCode,
+        errSaveSchedule.ErrorDescription
+        
+      );
+
+    }
+    logger.logInfo(`SaveSchedule() :: Error :: ${JSON.stringify(errSaveSchedule)}`);
+    saveScheduleResponse(functionContext, null);
+  }
+};
+
+
 module.exports.GetAdminComponents = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
 
@@ -157,7 +312,7 @@ module.exports.GetAdminComponents = async (req, res) => {
       `GetAdminComponents() :: Request Object : ${getAdminComponentsRequest}`
     );
   
-    var validateRequest = joiValidationModel.getAdminComponentRequest(
+    var validateRequest = joiValidationModel.getAdminCompenentRequest(
       getAdminComponentsRequest
     );
   
@@ -205,80 +360,6 @@ module.exports.GetAdminComponents = async (req, res) => {
       )}`
     );
     getAdminComponentsResponse(functionContext, null);
-  }
-};
-
-module.exports.SavePlaylist = async (req, res) => {
-  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
-
-  logger.logInfo(`SavePlaylist invoked()!!`);
-
-  var functionContext = new coreRequestModel.FunctionContext(
-    requestType.SAVEPLAYLIST,
-    null,
-    res,
-    logger
-  );
-
-
-  var savePlaylistRequest = new coreRequestModel.SavePlaylistRequest(req);
-  
-    logger.logInfo(
-      `savePlaylist() :: Request Object : ${savePlaylistRequest}`
-    );
-  
-    var validateRequest = joiValidationModel.savePlaylistRequest(
-      savePlaylistRequest
-    );
-  
-    if (validateRequest.error) {
-      functionContext.error = new coreRequestModel.ErrorModel(
-        constant.ErrorMessage.Invalid_Request,
-        constant.ErrorCode.Invalid_Request,
-        validateRequest.error.details
-      );
-      logger.logInfo(
-        `savePlaylist() Error:: Invalid Request :: ${JSON.stringify(
-          savePlaylistRequest
-        )}`
-      );
-      savePlaylistResponse(functionContext, null);
-      return;
-    }
-
-
-  var requestContext={
-    userRef:functionContext.userRef,
-   ...savePlaylistRequest
-  }
-
-
-  try {
-    var savePlaylistInDBResponse = await databaseHelper.savePlaylistDB(
-      functionContext,
-      requestContext
-    );
-    savePlaylistResponse(functionContext, savePlaylistInDBResponse);
-  } catch (errSavePlaylist) {
-    if (!errSavePlaylist.ErrorMessage && !errSavePlaylist.ErrorCode) {
-      logger.logInfo(`SavePlaylist() :: Error :: ${errSavePlaylist}`);
-      functionContext.error = new coreRequestModel.ErrorModel(
-        constant.ErrorMessage.ApplicationError,
-        constant.ErrorCode.ApplicationError,
-        
-      );
-    }else {
-      logger.logInfo(`SavePlaylist() :: Error :: ${errSavePlaylist}`);
-      functionContext.error = new coreRequestModel.ErrorModel(
-        errSavePlaylist.ErrorMessage ,
-        errSavePlaylist.ErrorCode,
-        errSavePlaylist.ErrorDescription
-        
-      );
-
-    }
-    logger.logInfo(`SavePlaylist() :: Error :: ${JSON.stringify(errSavePlaylist)}`);
-    savePlaylistResponse(functionContext, null);
   }
 };
 
@@ -346,12 +427,12 @@ var processMedia=async (functionContext,req,requestContext)=>{
             requestContext.file.destPath = fileConfiguration.RemoteStorage +file.filename;
             requestContext.file.fileUrl = fileConfiguration.FileUrl +file.filename;
 
+            var uploadFile = await fileUpload(functionContext, requestContext.file);
           }
-          
+
         }        
-        requestContext.fileUploadDetails.push({fileName:file.filename,fileMimetype:file.mimetype,fileUrl:requestContext.file.fileUrl,srcPath:requestContext.file.srcPath,destPath:requestContext.file.destPath})
+        requestContext.fileUploadDetails.push({fileName:file.filename,fileMimetype:file.mimetype,fileUrl:requestContext.file.fileUrl})
       }   
-      var uploadFile = await fileUpload(functionContext, requestContext.fileUploadDetails);
     }  
   }
   
@@ -404,12 +485,7 @@ async function fileUpload(functionContext, resolvedResult) {
   client.ftp.verbose = true;
   try {
     await client.access(FTPSettings);
-
-    for (let file = 0; file < resolvedResult.length; file++) {
-      const item = resolvedResult[file];
-      await client.uploadFrom(item.srcPath, item.destPath);
-      
-    }
+    await client.uploadFrom(resolvedResult.srcPath, resolvedResult.destPath);
    
   } catch (errFileUpload) {
     logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(errFileUpload)}`);
@@ -472,8 +548,23 @@ var savePlaylistResponse = async (functionContext, resolvedResult) => {
   if (functionContext.error) {
     savePlaylistResponse.Error = functionContext.error;
     savePlaylistResponse.Details = null;
-  } else {    
-    savePlaylistResponse.Details.PlaylistRef =resolvedResult.PlaylistRef;
+  } else {
+    var documents = [];
+    if(resolvedResult.fileUploadDetails && resolvedResult.fileUploadDetails.length){
+      for (let count = 0; count < resolvedResult.fileUploadDetails.length; count++) {
+        var fileDocument = resolvedResult.fileUploadDetails[count];
+        var fileName  = fileDocument.fileName;
+        var fileKey  = fileDocument.fileKey;
+        var preSignedUrl = await awsHelper.getPreSignedUrl(functionContext,"Playlist/",fileName)
+        documents.push({
+          DocumentUrl:preSignedUrl,
+          DocumentKey: fileKey
+          
+        })
+      }
+    }
+    savePlaylistResponse.Error = null;
+    savePlaylistResponse.Details.Documents =documents;
   }
   appLib.SendHttpResponse(functionContext, savePlaylistResponse);
 
@@ -481,4 +572,41 @@ var savePlaylistResponse = async (functionContext, resolvedResult) => {
     `savePlaylistResponse  Response :: ${JSON.stringify(savePlaylistResponse)}`
   );
   logger.logInfo(`savePlaylistResponse completed`);
+};
+
+var saveScheduleResponse = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`saveScheduleResponse() invoked`);
+
+  var saveScheduleResponse = new coreRequestModel.SaveScheduleResponse();
+
+  saveScheduleResponse.RequestID = functionContext.requestID;
+  if (functionContext.error) {
+    saveScheduleResponse.Error = functionContext.error;
+    saveScheduleResponse.Details = null;
+  } else {
+    var documents = [];
+    if(resolvedResult.fileUploadDetails && resolvedResult.fileUploadDetails.length){
+      for (let count = 0; count < resolvedResult.fileUploadDetails.length; count++) {
+        var fileDocument = resolvedResult.fileUploadDetails[count];
+        var fileName  = fileDocument.fileName;
+        var fileKey  = fileDocument.fileKey;
+        var preSignedUrl = await awsHelper.getPreSignedUrl(functionContext,"Schedule/",fileName)
+        documents.push({
+          DocumentUrl:preSignedUrl,
+          DocumentKey: fileKey
+          
+        })
+      }
+    }
+    saveScheduleResponse.Error = null;
+    saveScheduleResponse.Details.Documents =documents;
+  }
+  appLib.SendHttpResponse(functionContext, saveScheduleResponse);
+
+  logger.logInfo(
+    `saveScheduleResponse  Response :: ${JSON.stringify(saveScheduleResponse)}`
+  );
+  logger.logInfo(`saveScheduleResponse completed`);
 };

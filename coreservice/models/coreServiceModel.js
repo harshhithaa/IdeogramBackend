@@ -122,25 +122,6 @@ class getAdminComponentResponse {
     (this.Error = null), (this.Details = {}), (this.RequestID = null);
   }
 }
-class savePlaylistRequest {
-  constructor(req) {
-    this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
-    this.playlistName = req.body.PlaylistName ? req.body.PlaylistName : null;
-    this.playlist = req.body.Playlist ? req.body.Playlist : null;
-    this.description = req.body.Description ? req.body.Description : null;
-    this.isActive = req.body.IsActive ? req.body.IsActive : null;
-    this.currentTs = momentTimezone
-    .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
-    .tz("Asia/Kolkata")
-    .format("YYYY-MM-DD HH:mm:ss ");
-  }
-}
-
-class savePlaylistResponse {
-  constructor() {
-    (this.Error = null), (this.Details = {}), (this.RequestID = null);
-  }
-}
 
 class saveMediaRequest {
   constructor(req) {
@@ -156,6 +137,49 @@ class saveMediaResponse {
     (this.Error = null),
       (this.Details = {
         Media: [],
+      }),
+      (this.RequestID = null);
+  }
+}
+class savePlaylistRequest {
+  constructor(req) {
+    this.playlistReference = req.body.PlaylistReference ? req.body.PlaylistReference : null;
+    this.playlistName = req.body.PlaylistName ? req.body.PlaylistName : null;
+    this.description = req.body.Description ? req.body.Description : null;
+    this.playlist = req.body.Playlist ? req.body.Playlist : null;
+    this.isActive = req.body.IsActive ? req.body.IsActive : null;
+    this.currentTs = momentTimezone
+      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
+      .tz("Asia/Kolkata")
+      .format("YYYY-MM-DD HH:mm:ss ");
+  }
+}
+class savePlaylistResponse {
+  constructor() {
+    (this.Error = null),
+      (this.Details = {
+        Media: [],
+      }),
+      (this.RequestID = null);
+  }
+}
+class saveScheduleRequest {
+  constructor(req) {
+    this.scheduleReference = req.body.ScheduleReference ? req.body.ScheduleReference : null;
+    this.scheduleName = req.body.ScheduleName ? req.body.ScheduleName : null;
+    this.description = req.body.Description ? req.body.Description : null;
+    this.schedule = req.body.Schedule ? req.body.Schedule : null;
+    this.isActive = req.body.IsActive ? req.body.IsActive : null;
+    this.currentTs = momentTimezone
+      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
+      .tz("Asia/Kolkata")
+      .format("YYYY-MM-DD HH:mm:ss ");
+  }
+}
+class saveScheduleResponse {
+  constructor() {
+    (this.Error = null),
+      (this.Details = {
       }),
       (this.RequestID = null);
   }
@@ -570,6 +594,7 @@ class getRestaurantItemDetailsResponse {
   }
 }
 
+// //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get Packages
 
@@ -586,6 +611,7 @@ class GetPackageItemDetailsResponse {
   }
 }
 
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Get Monitors
 
@@ -1729,6 +1755,8 @@ module.exports.GetAdminComponentRequest = getAdminComponentRequest;
 module.exports.GetAdminComponentResponse = getAdminComponentResponse;
 module.exports.SavePlaylistRequest = savePlaylistRequest;
 module.exports.SavePlaylistResponse = savePlaylistResponse;
+module.exports.SaveScheduleRequest = saveScheduleRequest;
+module.exports.SaveScheduleResponse = saveScheduleResponse;
 
 
 

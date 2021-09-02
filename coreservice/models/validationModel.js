@@ -77,3 +77,23 @@ module.exports.savePlaylistRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+module.exports.saveScheduleRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    scheduleRef: joi.string().required().allow(null),
+    scheduleTitle: joi.string().required(),
+    description: joi.string().optional().allow(null),
+    playlistRef: joi.string().required().allow(null),
+    isActive: joi.number().required(),
+    schedule: joi
+    .object({
+      FirstStart: joi.string().required(),
+      FirstStop: joi.string().required(),
+      EndTime: joi.string().required(),
+      Days: joi.string().required(),
+    })
+    .optional().allow(null),
+    currentTs: joi.string().optional(),
+
+  });
+  return joiSchema.validate(requestParams);
+};

@@ -155,6 +155,7 @@ module.exports.RequestType = {
   SAVEMEDIA:"SM",
   SAVEPLAYLIST:"SP",
   GETADMINCOMPONENTS:"GAC",
+  SAVESCHEDULE:"SS",
 };
 
 module.exports.UserType = {
