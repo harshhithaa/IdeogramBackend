@@ -35,9 +35,6 @@ app.use("/api/authentication", authenticationRoute);
 var adminRoute = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoute);
 
-var customerRoute = require("./routes/customerRoutes");
-app.use("/api/customer", customerRoute);
-
 var deviceRoute = require("./routes/deviceRoutes");
 app.use("/api/device", deviceRoute);
 

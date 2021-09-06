@@ -12,12 +12,12 @@ module.exports.validateRequest = (requestParams) => {
 };
 
 module.exports.adminLoginRequest = (requestParams) => {
-    var joiSchema = joi.object({
-      email: joi.string().required(),
-      password: joi.string().required()
-    });
-    return joiSchema.validate(requestParams);
-  };
+  var joiSchema = joi.object({
+    email: joi.string().required(),
+    password: joi.string().required()
+  });
+  return joiSchema.validate(requestParams);
+};
 
 module.exports.registerDeviceTokenRequest = (requestParams) => {
   var joiSchema = joi.object({
@@ -54,7 +54,7 @@ module.exports.saveMediaRequest = (requestParams) => {
 
 module.exports.getAdminComponentRequest = (requestParams) => {
   var joiSchema = joi.object({
-    componentType: joi.number().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor)
+    componentType: joi.number().valid(constant.COMPONENTS.Media, constant.COMPONENTS.Playlist, constant.COMPONENTS.Schedule, constant.COMPONENTS.Monitor)
   });
   return joiSchema.validate(requestParams);
 };
@@ -66,12 +66,12 @@ module.exports.savePlaylistRequest = (requestParams) => {
     description: joi.string().optional().allow(null),
     isActive: joi.number().required(),
     playlist: joi
-    .array()
-    .items({
-      MediaRef: joi.string().required(),
-      IsActive: joi.number().required().allow(1, 0),
-    })
-    .optional().allow(null),
+      .array()
+      .items({
+        MediaRef: joi.string().required(),
+        IsActive: joi.number().required().allow(1, 0),
+      })
+      .optional().allow(null),
     currentTs: joi.string().optional(),
 
   });
@@ -79,19 +79,32 @@ module.exports.savePlaylistRequest = (requestParams) => {
 };
 module.exports.saveScheduleRequest = (requestParams) => {
   var joiSchema = joi.object({
-    scheduleRef: joi.string().required().allow(null),
+    scheduleRef: joi.string().optional().allow(null),
     scheduleTitle: joi.string().required(),
     description: joi.string().optional().allow(null),
     playlistRef: joi.string().required().allow(null),
     isActive: joi.number().required(),
     schedule: joi
-    .object({
-      FirstStart: joi.string().required(),
-      FirstStop: joi.string().required(),
-      EndTime: joi.string().required(),
-      Days: joi.string().required(),
-    })
-    .optional().allow(null),
+      .object({
+        StartTime: joi.string().required(),
+        EndTime: joi.string().required(),
+        StartDate: joi.string().required(),
+        EndDate: joi.string().required(),
+        Days: joi.string().required(),
+      })
+      .optional().allow(null),
+    currentTs: joi.string().optional(),
+
+  });
+  return joiSchema.validate(requestParams);
+};
+module.exports.saveMonitorRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    monitorRef: joi.string().optional().allow(null),
+    monitorName: joi.string().required(),
+    description: joi.string().optional().allow(null),
+    defaultPlaylistRef: joi.string().required().allow(null),
+    isActive: joi.number().required(),
     currentTs: joi.string().optional(),
 
   });

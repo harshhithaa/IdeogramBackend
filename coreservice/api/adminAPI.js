@@ -258,6 +258,7 @@ module.exports.SaveSchedule = async (req, res) => {
 
 
   var requestContext={
+    userRef:functionContext.userRef,
     ...saveScheduleRequest
   }
 
@@ -268,7 +269,7 @@ module.exports.SaveSchedule = async (req, res) => {
       functionContext,
       requestContext
     );
-    saveScheduleResponse(functionContext, requestContext);
+    saveScheduleResponse(functionContext, saveScheduleInDBResponse);
   } catch (errSaveSchedule) {
     if (!errSaveSchedule.ErrorMessage && !errSaveSchedule.ErrorCode) {
       logger.logInfo(`SaveSchedule() :: Error :: ${errSaveSchedule}`);
@@ -289,6 +290,80 @@ module.exports.SaveSchedule = async (req, res) => {
     }
     logger.logInfo(`SaveSchedule() :: Error :: ${JSON.stringify(errSaveSchedule)}`);
     saveScheduleResponse(functionContext, null);
+  }
+};
+
+module.exports.SaveMonitor = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`SaveMonitor invoked()!!`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.SAVEMONITOR,
+    null,
+    res,
+    logger
+  );
+
+  var saveMonitorRequest = new coreRequestModel.SaveMonitorRequest(req);
+  
+    logger.logInfo(
+      `saveMonitor() :: Request Object : ${saveMonitorRequest}`
+    );
+  
+    var validateRequest = joiValidationModel.saveMonitorRequest(
+      saveMonitorRequest
+    );
+  
+    if (validateRequest.error) {
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.Invalid_Request,
+        constant.ErrorCode.Invalid_Request,
+        validateRequest.error.details
+      );
+      logger.logInfo(
+        `saveMonitors() Error:: Invalid Request :: ${JSON.stringify(
+          saveMonitorRequest
+        )}`
+      );
+      saveMonitorResponse(functionContext, null);
+      return;
+    }
+
+
+  var requestContext={
+    userRef:functionContext.userRef,
+    ...saveMonitorRequest
+  }
+
+
+  try {
+  
+    var saveMonitorInDBResponse = await databaseHelper.saveMonitorDB(
+      functionContext,
+      requestContext
+    );
+    saveMonitorResponse(functionContext, saveMonitorInDBResponse);
+  } catch (errSaveMonitor) {
+    if (!errSaveMonitor.ErrorMessage && !errSaveMonitor.ErrorCode) {
+      logger.logInfo(`SaveMonitor() :: Error :: ${errSaveMonitor}`);
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError,
+        
+      );
+    }else {
+      logger.logInfo(`SaveMonitor() :: Error :: ${errSaveMonitor}`);
+      functionContext.error = new coreRequestModel.ErrorModel(
+        errSaveMonitor.ErrorMessage ,
+        errSaveMonitor.ErrorCode,
+        errSaveMonitor.ErrorDescription
+        
+      );
+
+    }
+    logger.logInfo(`SaveMonitor() :: Error :: ${JSON.stringify(errSaveMonitor)}`);
+    saveMonitorResponse(functionContext, null);
   }
 };
 
@@ -586,22 +661,7 @@ var saveScheduleResponse = async (functionContext, resolvedResult) => {
     saveScheduleResponse.Error = functionContext.error;
     saveScheduleResponse.Details = null;
   } else {
-    var documents = [];
-    if(resolvedResult.fileUploadDetails && resolvedResult.fileUploadDetails.length){
-      for (let count = 0; count < resolvedResult.fileUploadDetails.length; count++) {
-        var fileDocument = resolvedResult.fileUploadDetails[count];
-        var fileName  = fileDocument.fileName;
-        var fileKey  = fileDocument.fileKey;
-        var preSignedUrl = await awsHelper.getPreSignedUrl(functionContext,"Schedule/",fileName)
-        documents.push({
-          DocumentUrl:preSignedUrl,
-          DocumentKey: fileKey
-          
-        })
-      }
-    }
-    saveScheduleResponse.Error = null;
-    saveScheduleResponse.Details.Documents =documents;
+    saveScheduleResponse.Details.ScheduleRef =resolvedResult.ScheduleRef;
   }
   appLib.SendHttpResponse(functionContext, saveScheduleResponse);
 
@@ -609,4 +669,26 @@ var saveScheduleResponse = async (functionContext, resolvedResult) => {
     `saveScheduleResponse  Response :: ${JSON.stringify(saveScheduleResponse)}`
   );
   logger.logInfo(`saveScheduleResponse completed`);
+};
+
+var saveMonitorResponse = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`saveMonitorResponse() invoked`);
+
+  var saveMonitorResponse = new coreRequestModel.SaveMonitorResponse();
+
+  saveMonitorResponse.RequestID = functionContext.requestID;
+  if (functionContext.error) {
+    saveMonitorResponse.Error = functionContext.error;
+    saveMonitorResponse.Details = null;
+  } else {  
+    saveMonitorResponse.Details.MonitorRef =resolvedResult.MonitorRef;
+  }
+  appLib.SendHttpResponse(functionContext, saveMonitorResponse);
+
+  logger.logInfo(
+    `saveMonitorResponse  Response :: ${JSON.stringify(saveMonitorResponse)}`
+  );
+  logger.logInfo(`saveMonitorResponse completed`);
 };

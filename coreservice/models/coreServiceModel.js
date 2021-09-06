@@ -141,6 +141,26 @@ class saveMediaResponse {
       (this.RequestID = null);
   }
 }
+class saveMonitorRequest {
+  constructor(req) {
+    this.monitorRef = req.body.MonitorRef ? req.body.MonitorRef : null;
+    this.monitorName = req.body.MonitorName ? req.body.MonitorName : null;
+    this.description = req.body.Description ? req.body.Description : null;
+    this.defaultPlaylistRef = req.body.DefaultPlaylistRef ? req.body.DefaultPlaylistRef : null;
+    this.isActive = req.body.IsActive ? req.body.IsActive : null;
+    this.currentTs = momentTimezone
+      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
+      .tz("Asia/Kolkata")
+      .format("YYYY-MM-DD HH:mm:ss ");
+  }
+}
+class saveMonitorResponse {
+  constructor() {
+    (this.Error = null),
+      (this.Details = {}),
+      (this.RequestID = null);
+  }
+}
 class savePlaylistRequest {
   constructor(req) {
     this.playlistReference = req.body.PlaylistReference ? req.body.PlaylistReference : null;
@@ -165,9 +185,10 @@ class savePlaylistResponse {
 }
 class saveScheduleRequest {
   constructor(req) {
-    this.scheduleReference = req.body.ScheduleReference ? req.body.ScheduleReference : null;
-    this.scheduleName = req.body.ScheduleName ? req.body.ScheduleName : null;
+    this.scheduleRef = req.body.ScheduleRef ? req.body.ScheduleRef : null;
+    this.scheduleTitle = req.body.ScheduleTitle ? req.body.ScheduleTitle : null;
     this.description = req.body.Description ? req.body.Description : null;
+    this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
     this.schedule = req.body.Schedule ? req.body.Schedule : null;
     this.isActive = req.body.IsActive ? req.body.IsActive : null;
     this.currentTs = momentTimezone
@@ -294,71 +315,7 @@ class AddCustomerSite {
       .tz("Asia/Kolkata")
       .format("YYYY-MM-DD HH:mm:ss ");
   }
-}
-//this is for admin
-class addpromoforsingle {
-  constructor(req) {
-    this.ref = req.body.ref ? req.body.ref : null;
-    
-    this.currentTimestamp = momentTimezone
-      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
-      .tz("Asia/Kolkata")
-      .format("YYYY-MM-DD HH:mm:ss ");
-  }
-}
-class addpromo {
-  constructor(req) {
-    this.ref = req.body.ref ? req.body.ref : null;
-    this.command = req.body.command ? req.body.command : null;
-    this.phone = req.body.Phone ? req.body.Phone : null;
-    this.type = req.body.type ? req.body.type : null;
-    this.valtype = req.body.valtype ? req.body.valtype : null;
-    this.stype = req.body.stype ? req.body.stype : null;
-    this.maxd = req.body.maxd ? req.body.maxd : null;
-    this.maxda = req.body.maxda ? req.body.maxda : null;
-    this.maxp = req.body.maxp ? req.body.maxp : null;
-    this.maxpa = req.body.maxpa ? req.body.maxpa : null;
-    this.email = req.body.Email ? req.body.Email : null;
-    this.firstname = req.body.FirstName ? req.body.FirstName : null;
-    this.lastname = req.body.LastName ? req.body.LastName : null;
-    this.Password = req.body.Password ? req.body.Password : null;
-    this.Address1 = req.body.Address1 ? req.body.Address1 : null;
-    this.Address2 = req.body.Address2 ? req.body.Address2 : null;
-    this.City = req.body.City ? req.body.City : null;
-    this.State = req.body.State ? req.body.State : null;
-    this.Pincode = req.body.Pincode ? req.body.Pincode : null;
-    this.expirydate = req.body.expirydate ? req.body.expirydate : null;
-    this.currentTimestamp = momentTimezone
-      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
-      .tz("Asia/Kolkata")
-      .format("YYYY-MM-DD HH:mm:ss ");
-  }
-}
-class fetchusertax {
-  constructor(req) {
-    
-    this.customeref = req.body.customerref ? req.body.customerref : null;
-    this.currentTimestamp = momentTimezone
-      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
-      .tz("Asia/Kolkata")
-      .format("YYYY-MM-DD HH:mm:ss ");
-  }
-}
-class paybill {
-  constructor(req) {
-    
-    this.paymentidrazor = req.body.paymentidrazor ? req.body.paymentidrazor : null;
-    this.siteref = req.body.siteref ? req.body.siteref : null;
-    this.tax = req.body.tax ? req.body.tax : null;
-    this.auth = req.body.auth ? req.body.auth : null;
-    this.currentTimestamp = momentTimezone
-      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
-      .tz("Asia/Kolkata")
-      .format("YYYY-MM-DD HH:mm:ss ");
-  }
-}
-//this is for admin
-class isriderrPresentResponse {
+}class isriderrPresentResponse {
   constructor() {
     this.Details = {};
     (this.RequestID = null), (this.Error = null);
@@ -1757,6 +1714,8 @@ module.exports.SavePlaylistRequest = savePlaylistRequest;
 module.exports.SavePlaylistResponse = savePlaylistResponse;
 module.exports.SaveScheduleRequest = saveScheduleRequest;
 module.exports.SaveScheduleResponse = saveScheduleResponse;
+module.exports.SaveMonitorRequest = saveMonitorRequest;
+module.exports.SaveMonitorResponse = saveMonitorResponse;
 
 
 
@@ -1780,12 +1739,6 @@ module.exports.analyticsRequest = analyticsRequest;
 module.exports.AddRider = addRider;
 module.exports.AddCustomerSite = AddCustomerSite;
 
-//this is for admin
-module.exports.Addpromo = addpromo;
-module.exports.Addpromoforsingle = addpromoforsingle;
-module.exports.Fetchusertax = fetchusertax;
-module.exports.Paybill = paybill;
-//this is for admin
 module.exports.IsriderrPresentResponse = isriderrPresentResponse;
 module.exports.GetCustomerAddressListRequest = getCustomerAddressListRequest;
 module.exports.GetCustomerAddressListResponse = getCustomerAddressListResponse;
