@@ -520,22 +520,23 @@ var saveMediaResponse = async (functionContext, resolvedResult) => {
     saveMediaResponse.Error = functionContext.error;
     saveMediaResponse.Details = null;
   } else {
-    var documents = [];
+    var media = [];
     if(resolvedResult.fileUploadDetails && resolvedResult.fileUploadDetails.length){
       for (let count = 0; count < resolvedResult.fileUploadDetails.length; count++) {
         var fileDocument = resolvedResult.fileUploadDetails[count];
         var fileName  = fileDocument.fileName;
-        var fileKey  = fileDocument.fileKey;
-        var preSignedUrl = await awsHelper.getPreSignedUrl(functionContext,"Media/",fileName)
-        documents.push({
-          DocumentUrl:preSignedUrl,
-          DocumentKey: fileKey
+        var fileMimetype  = fileDocument.fileMimetype;
+        var fileUrl = fileDocument.fileUrl;
+        media.push({
+          fileName:fileName,
+          fileMimetype: fileMimetype,
+          fileUrl: fileUrl
           
         })
       }
     }
     saveMediaResponse.Error = null;
-    saveMediaResponse.Details.Documents =documents;
+    saveMediaResponse.Details.Media =media;
   }
   appLib.SendHttpResponse(functionContext, saveMediaResponse);
 

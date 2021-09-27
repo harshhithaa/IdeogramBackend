@@ -190,6 +190,7 @@ class saveScheduleRequest {
     this.description = req.body.Description ? req.body.Description : null;
     this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
     this.schedule = req.body.Schedule ? req.body.Schedule : null;
+    this.fixedTimePlayback = req.body.FixedTimePlayback ? req.body.FixedTimePlayback : null;
     this.isActive = req.body.IsActive ? req.body.IsActive : null;
     this.currentTs = momentTimezone
       .utc(new Date(), "YYYY-MM-DD HH:mm:ss")

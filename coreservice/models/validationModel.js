@@ -83,6 +83,7 @@ module.exports.saveScheduleRequest = (requestParams) => {
     scheduleTitle: joi.string().required(),
     description: joi.string().optional().allow(null),
     playlistRef: joi.string().required().allow(null),
+    fixedTimePlayback: joi.number().required(),
     isActive: joi.number().required(),
     schedule: joi
       .object({
@@ -90,7 +91,7 @@ module.exports.saveScheduleRequest = (requestParams) => {
         EndTime: joi.string().required(),
         StartDate: joi.string().required(),
         EndDate: joi.string().required(),
-        Days: joi.string().required(),
+        Days: joi.array().required(),
       })
       .optional().allow(null),
     currentTs: joi.string().optional(),
