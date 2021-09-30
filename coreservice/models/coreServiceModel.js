@@ -95,6 +95,16 @@ class adminLoginResponse {
   }
 }
 
+class adminLogoutResponse {
+  constructor() {
+    (this.Error = {}),
+      (this.Details = {
+        UserRef: null,
+      }),
+      (this.RequestID = null);
+  }
+}
+
 class saveSystemUserRequest {
   constructor(req) {
     this.adminRef = req.body.AdminRef ? req.body.AdminRef : null;
@@ -118,6 +128,18 @@ class getAdminComponentRequest {
 }
 
 class getAdminComponentResponse {
+  constructor() {
+    (this.Error = null), (this.Details = {}), (this.RequestID = null);
+  }
+}
+class getAdminComponentDetailsRequest {
+  constructor(req) {
+    this.componentType = req.body.ComponentType ? req.body.ComponentType : null;
+    this.componentRef = req.body.ComponentRef ? req.body.ComponentRef : null;
+  }
+}
+
+class getAdminComponentDetailsResponse {
   constructor() {
     (this.Error = null), (this.Details = {}), (this.RequestID = null);
   }
@@ -1730,6 +1752,8 @@ module.exports.SaveMediaRequest = saveMediaRequest;
 module.exports.SaveMediaResponse = saveMediaResponse;
 module.exports.GetAdminComponentRequest = getAdminComponentRequest;
 module.exports.GetAdminComponentResponse = getAdminComponentResponse;
+module.exports.GetAdminComponentDetailsRequest = getAdminComponentDetailsRequest;
+module.exports.GetAdminComponentDetailsResponse = getAdminComponentDetailsResponse;
 module.exports.SavePlaylistRequest = savePlaylistRequest;
 module.exports.SavePlaylistResponse = savePlaylistResponse;
 module.exports.SaveScheduleRequest = saveScheduleRequest;
@@ -1738,6 +1762,7 @@ module.exports.SaveMonitorRequest = saveMonitorRequest;
 module.exports.SaveMonitorResponse = saveMonitorResponse;
 module.exports.DeleteAdminComponentsRequest = deleteAdminComponentsRequest;
 module.exports.DeleteAdminComponentsResponse = deleteAdminComponentsResponse;
+module.exports.AdminLogoutResponse = adminLogoutResponse;
 
 
 

@@ -119,6 +119,15 @@ module.exports.getAdminCompenentRequest = (requestParams) => {
   return joiSchema.validate(requestParams);
 };
 
+module.exports.getAdminComponentDetailsRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   
+    componentRef: joi.string().required().allow(null),
+
+  });
+  return joiSchema.validate(requestParams);
+};
+
 module.exports.deleteAdminCompenentRequest = (requestParams) => {
   var joiSchema = joi.object({
     componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   
@@ -128,3 +137,4 @@ module.exports.deleteAdminCompenentRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+

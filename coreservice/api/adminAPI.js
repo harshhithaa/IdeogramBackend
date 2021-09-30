@@ -432,6 +432,80 @@ module.exports.GetAdminComponents = async (req, res) => {
   }
 };
 
+module.exports.GetAdminComponentsDetails = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`GetAdminComponentsDetails()`);
+
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.GETADMINCOMPONENTSDETAILS,
+    null,
+    res,
+    logger
+  );
+
+  var getAdminComponentsDetailsRequest = new coreRequestModel.GetAdminComponentDetailsRequest(req);
+  
+    logger.logInfo(
+      `GetAdminComponentsDetails() :: Request Object : ${getAdminComponentsDetailsRequest}`
+    );
+  
+    var validateRequest = joiValidationModel.getAdminComponentDetailsRequest(
+      getAdminComponentsDetailsRequest
+    );
+  
+    if (validateRequest.error) {
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.Invalid_Request,
+        constant.ErrorCode.Invalid_Request,
+        validateRequest.error.details
+      );
+      logger.logInfo(
+        `GetAdminComponentsDetails() Error:: Invalid Request :: ${JSON.stringify(
+          getAdminComponentsDetailsRequest
+        )}`
+      );
+      getAdminComponentsDetailsResponse(functionContext, null);
+      return;
+    }
+
+  try {
+ 
+     var adminComponentsDetailsResult = await databaseHelper.getAdminComponentDetailsInDB(
+      functionContext,
+      getAdminComponentsDetailsRequest
+    );
+
+    var processComponentDetailsDataResult=await processComponentDetailsData(functionContext,adminComponentsDetailsResult,getAdminComponentsDetailsRequest);
+
+
+  
+
+    await getAdminComponentsDetailsResponse(functionContext, processComponentDetailsDataResult);
+  } catch (errGetAdminComponents) {
+    if (
+      !errGetAdminComponents.ErrorMessage &&
+      !errGetAdminComponents.ErrorCode
+    ) {
+      logger.logInfo(
+        `errPlaceDelivery() :: Error :: ${errGetAdminComponents}`
+      );
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError,
+        JSON.stringify(errGetAdminComponents)
+      );
+    }
+    logger.logInfo(
+      `GetAdminComponents() :: Error :: ${JSON.stringify(
+        errGetAdminComponents
+      )}`
+    );
+    getAdminComponentsResponse(functionContext, null);
+  }
+};
+
 module.exports.DeleteAdminComponents = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
 
@@ -765,4 +839,78 @@ var saveMonitorResponse = async (functionContext, resolvedResult) => {
     `saveMonitorResponse  Response :: ${JSON.stringify(saveMonitorResponse)}`
   );
   logger.logInfo(`saveMonitorResponse completed`);
+};
+
+var processComponentDetailsData = async (functionContext, resolvedResult, requestDetails) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`processComponentDetailsData() invoked`);
+  var details={}
+  var resolvedData={}
+
+  if (resolvedResult) {
+    if (requestDetails.componentType==constant.COMPONENTS.Media) {
+      resolvedData.Media=resolvedResult[0][0]; 
+      details={
+        ...resolvedData
+      } 
+      
+      
+    } else if (requestDetails.componentType==constant.COMPONENTS.Playlist) {
+      resolvedData.Playlist=resolvedResult[0][0];
+      resolvedData.Media=resolvedResult[1];
+      details={
+        ...resolvedData
+      } 
+      
+    } else if (requestDetails.componentType==constant.COMPONENTS.Schedule) {
+      resolvedData.ScheduleData=resolvedResult[0][0];
+      resolvedData.MonitorData=resolvedResult[1];
+      details={
+        ...resolvedData
+      } 
+
+      
+    } else if (requestDetails.componentType==constant.COMPONENTS.Monitor) {
+      resolvedData.MonitorData=resolvedResult[0][0];
+      details={
+        ...resolvedData
+      } 
+
+    } 
+    
+
+    
+  }
+
+  return details;
+
+  
+};
+
+var getAdminComponentsDetailsResponse = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`getAdminComponentsDetailsResponse() invoked`);
+
+  var getAdminComponentsDetailsResponse = new coreRequestModel.GetAdminComponentDetailsResponse();
+
+  getAdminComponentsDetailsResponse.RequestID = functionContext.requestID;
+  if (functionContext.error) {
+    getAdminComponentsDetailsResponse.Error = functionContext.error;
+    getAdminComponentsDetailsResponse.Details = null;
+  } else {
+   
+        
+     
+      getAdminComponentsDetailsResponse.Error = null;
+      getAdminComponentsDetailsResponse.Details =resolvedResult;
+
+  }
+  appLib.SendHttpResponse(functionContext, getAdminComponentsDetailsResponse);
+
+  logger.logInfo(
+    `getAdminComponentsDetailsResponse  Response :: ${JSON.stringify(getAdminComponentsDetailsResponse)}`
+  );
+  logger.logInfo(`getAdminComponentsDetailsResponse completed`);
 };

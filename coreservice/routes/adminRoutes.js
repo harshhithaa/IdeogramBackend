@@ -11,6 +11,7 @@ router.post("/saveschedule", adminApi.SaveSchedule);
 router.post("/savemonitor", adminApi.SaveMonitor);
 router.get("/componentlist", adminApi.GetAdminComponents);
 router.post("/deletecomponentlist", adminApi.DeleteAdminComponents);
+router.post("/componentdetails", adminApi.GetAdminComponentsDetails);
 
 module.exports = router;
 
