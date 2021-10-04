@@ -36,6 +36,9 @@ app.use("/api/admin", adminRoute);
 var deviceRoute = require("./routes/deviceRoutes");
 app.use("/api/device", deviceRoute);
 
+var monitorRoute = require("./routes/monitorRoutes");
+app.use("/api/monitor", monitorRoute);
+
 // Fetch Primary Setings From Database Residing in applib
 async function startServerProcess(logger) {
   try {

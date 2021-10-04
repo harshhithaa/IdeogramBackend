@@ -83,6 +83,7 @@ module.exports.saveScheduleRequest = (requestParams) => {
     scheduleTitle: joi.string().required(),
     description: joi.string().optional().allow(null),
     playlistRef: joi.string().required().allow(null),
+    monitorRef: joi.string().optional().allow(null),
     fixedTimePlayback: joi.number().required(),
     isActive: joi.number().required(),
     schedule: joi
@@ -105,6 +106,7 @@ module.exports.saveMonitorRequest = (requestParams) => {
     monitorName: joi.string().required(),
     description: joi.string().optional().allow(null),
     defaultPlaylistRef: joi.string().required().allow(null),
+    scheduleRef: joi.string().optional().allow(null),
     isActive: joi.number().required(),
     currentTs: joi.string().optional(),
 
@@ -128,11 +130,27 @@ module.exports.getAdminComponentDetailsRequest = (requestParams) => {
   return joiSchema.validate(requestParams);
 };
 
+module.exports.monitorDetailsRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    monitorRef: joi.string().required().allow(null),
+  });
+  return joiSchema.validate(requestParams);
+};
+
 module.exports.deleteAdminCompenentRequest = (requestParams) => {
   var joiSchema = joi.object({
     componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   
     componentList: joi.array().required(),   
     currentTs: joi.string().optional(),
+
+  });
+  return joiSchema.validate(requestParams);
+};
+
+module.exports.monitorLoginRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    monitorUser: joi.string().required(),
+    password: joi.string().required()
 
   });
   return joiSchema.validate(requestParams);

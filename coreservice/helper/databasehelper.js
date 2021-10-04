@@ -964,3 +964,82 @@ module.exports.saveMonitorDB = async (
     throw functionContext.error;
   }
 };
+module.exports.fetchMonitorDetailsRequest = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("fetchMonitorDetailsRequest() Invoked!");
+  try {
+    let rows = await databaseModule.knex.raw(
+      `CALL usp_fetch_monitor_details('${resolvedResult.monitorRef}')`
+    );
+    logger.logInfo(
+      `fetchMonitorDetailsRequest() :: Returned Result :: ${JSON.stringify(
+        rows[0][0]
+      )}` 
+    );
+    var result = rows[0] ? rows[0]: null;
+    return result;
+  } catch (errFetchMonitorDetailsDB) {
+    logger.logInfo(
+      `errFetchMonitorDetailsDB() :: Error :: ${JSON.stringify(
+        errFetchMonitorDetailsDB
+      )}`
+    );
+  
+ 
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage=constant.ErrorMessage.ApplicationError,
+      errorCode=constant.ErrorCode.ApplicationError,
+      {
+        sqlMessage:errsaveMonitorDB.sqlMessage,
+        stack:errsaveMonitorDB.stack,
+      }
+    );
+    throw functionContext.error;
+  }
+};
+
+module.exports.monitorLoginDB = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+  logger.logInfo("monitorLoginDB() Invoked!");
+  try {
+    let rows = await databaseModule.knex.raw(
+      `CALL usp_monitor_login('${resolvedResult.monitorUser}','${resolvedResult.password}','${functionContext.currentTs}')`
+    );
+    logger.logInfo(
+      `monitorLoginDB() :: Returned Result :: ${JSON.stringify(rows[0][0])}`
+    );
+    var result = rows[0][0][0] ? rows[0][0][0] : null;
+    return result;
+  } catch (errMonitorLoginDB) {
+    logger.logInfo(
+      `MonitorLoginDB() :: Error :: ${JSON.stringify(errMonitorLoginDB)}`
+    );
+    var errorCode = null;
+    var errorMessage = null;
+    if (
+      errMonitorLoginDB.sqlState &&
+      errMonitorLoginDB.sqlState == constant.ErrorCode.Invalid_User
+    ) {
+      errorCode = constant.ErrorCode.Invalid_User;
+      errorMessage = constant.ErrorMessage.Invalid_User;
+    } else if (
+      errMonitorLoginDB.sqlState &&
+      errMonitorLoginDB.sqlState ==
+        constant.ErrorCode.Invalid_User_Name_Or_Password
+    ) {
+      errorCode = constant.ErrorCode.Invalid_User_Name_Or_Password;
+      errorMessage = constant.ErrorMessage.Invalid_User_Name_Or_Password;
+    } else {
+      errorCode = constant.ErrorCode.ApplicationError;
+      errorMessage = constant.ErrorMessage.ApplicationError;
+    }
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage,
+      errorCode
+    );
+    throw functionContext.error;
+  }
+};

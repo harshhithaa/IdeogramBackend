@@ -169,6 +169,7 @@ class saveMonitorRequest {
     this.monitorName = req.body.MonitorName ? req.body.MonitorName : null;
     this.description = req.body.Description ? req.body.Description : null;
     this.defaultPlaylistRef = req.body.DefaultPlaylistRef ? req.body.DefaultPlaylistRef : null;
+    this.scheduleRef = req.body.ScheduleRef ? req.body.ScheduleRef : null;
     this.isActive = req.body.IsActive ? req.body.IsActive : null;
     this.currentTs = momentTimezone
       .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
@@ -211,6 +212,7 @@ class saveScheduleRequest {
     this.scheduleTitle = req.body.ScheduleTitle ? req.body.ScheduleTitle : null;
     this.description = req.body.Description ? req.body.Description : null;
     this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
+    this.monitorRef = req.body.MonitorRef ? req.body.MonitorRef : null;
     this.schedule = req.body.Schedule ? req.body.Schedule : null;
     this.fixedTimePlayback = req.body.FixedTimePlayback ? req.body.FixedTimePlayback : null;
     this.isActive = req.body.IsActive ? req.body.IsActive : null;
@@ -247,6 +249,32 @@ class deleteAdminComponentsResponse {
       (this.RequestID = null);
   }
 }
+class monitorDetailsRequest {
+  constructor(req) {
+    this.monitorRef = req.body.MonitorRef ? req.body.MonitorRef : null;
+  }
+}
+class monitorDetailsResponse {
+  constructor() {
+    (this.Error = null),
+      (this.Details = {}),
+      (this.RequestID = null);
+  }
+}
+class monitorLoginRequest {
+  constructor(req) {
+    this.monitorUser = req.body.MonitorUser ? req.body.MonitorUser : null;
+    this.password = req.body.Password ? req.body.Password : null;  }
+}
+class monitorLoginResponse {
+  constructor() {
+    (this.Error = null),
+      (this.Details = {}),
+      (this.RequestID = null);
+  }
+}
+
+
 //this is for admin
 class DaterangeRequest {
   constructor(req) {
@@ -1763,6 +1791,10 @@ module.exports.SaveMonitorResponse = saveMonitorResponse;
 module.exports.DeleteAdminComponentsRequest = deleteAdminComponentsRequest;
 module.exports.DeleteAdminComponentsResponse = deleteAdminComponentsResponse;
 module.exports.AdminLogoutResponse = adminLogoutResponse;
+module.exports.MonitorDetailsRequest = monitorDetailsRequest;
+module.exports.MonitorDetailsResponse = monitorDetailsResponse;
+module.exports.MonitorLoginRequest = monitorLoginRequest;
+module.exports.MonitorLoginResponse = monitorLoginResponse;
 
 
 
