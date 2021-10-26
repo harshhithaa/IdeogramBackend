@@ -100,7 +100,8 @@ module.exports.SaveMedia = async (req, res) => {
       srcPath:null,
       destPath:null,
       fileUrl:null,
-    }
+    },
+    serverUploadDetails:[]
   }
 
 
@@ -508,6 +509,76 @@ module.exports.GetAdminComponentsDetails = async (req, res) => {
   }
 };
 
+module.exports.ValidateDeleteAdminComponents = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`DeleteAdminComponents()`);
+
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.VALIDATEDELETEADMINCOMPONENTS,
+    null,
+    res,
+    logger
+  );
+
+  var deleteAdminComponentsRequest = new coreRequestModel.DeleteAdminComponentsRequest(req);
+  
+    logger.logInfo(
+      `DeleteAdminComponents() :: Request Object : ${deleteAdminComponentsRequest}`
+    );
+  
+    var validateRequest = joiValidationModel.deleteAdminCompenentRequest(
+      deleteAdminComponentsRequest
+    );
+  
+    if (validateRequest.error) {
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.Invalid_Request,
+        constant.ErrorCode.Invalid_Request,
+        validateRequest.error.details
+      );
+      logger.logInfo(
+        `DeleteAdminComponents() Error:: Invalid Request :: ${JSON.stringify(
+          deleteAdminComponentsRequest
+        )}`
+      );
+      validateDeleteAdminComponentsResponse(functionContext, null);
+      return;
+    }
+
+  try {
+ 
+     var validateDeleteAdminComponentListInDB = await databaseHelper.ValidateDeleteAdminComponentListInDB(
+      functionContext,
+      deleteAdminComponentsRequest
+    );
+  
+
+    await validateDeleteAdminComponentsResponse(functionContext, validateDeleteAdminComponentListInDB);
+  } catch (errDeleteAdminComponenets) {
+    if (
+      !errDeleteAdminComponenets.ErrorMessage &&
+      !errDeleteAdminComponenets.ErrorCode
+    ) {
+      logger.logInfo(
+        `errPlaceDelivery() :: Error :: ${errDeleteAdminComponenets}`
+      );
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError,
+        JSON.stringify(errDeleteAdminComponenets)
+      );
+    }
+    logger.logInfo(
+      `DeleteAdminComponents() :: Error :: ${JSON.stringify(
+        errDeleteAdminComponenets
+      )}`
+    );
+    validateDeleteAdminComponentsResponse(functionContext, null);
+  }
+};
+
 module.exports.DeleteAdminComponents = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
 
@@ -638,18 +709,19 @@ var processMedia=async (functionContext,req,requestContext)=>{
 
         if (file.hasOwnProperty("filename")||file.hasOwnProperty("fileName")) {
           if (file.filename) {
-            requestContext.file.fileName = file.filename?file.filename:file.fileName;
+            requestContext.file.fileName = file.originalname?file.originalname:file.originalname;
             requestContext.file.fileMimetype = file.mimetype;
             requestContext.file.srcPath = fileConfiguration.LocalStorage+file.filename;
             requestContext.file.destPath = fileConfiguration.RemoteStorage +file.filename;
             requestContext.file.fileUrl = fileConfiguration.FileUrl +file.filename;
 
-            var uploadFile = await fileUpload(functionContext, requestContext.file);
           }
-
-        }        
-        requestContext.fileUploadDetails.push({fileName:file.filename,fileMimetype:file.mimetype,fileUrl:requestContext.file.fileUrl})
+          
+        } 
+        requestContext.serverUploadDetails.push({srcPath:requestContext.file.srcPath,destPath:requestContext.file.destPath})       
+        requestContext.fileUploadDetails.push({fileName:requestContext.file.fileName,fileMimetype:file.mimetype.split('/')[0],fileUrl:requestContext.file.fileUrl})
       }   
+      var uploadFile = await fileUpload(functionContext, requestContext.serverUploadDetails);
     }  
   }
   
@@ -694,7 +766,7 @@ var saveMediaResponse = async (functionContext, resolvedResult) => {
   logger.logInfo(`saveMediaResponse completed`);
 };
 
-async function fileUpload(functionContext, resolvedResult) {
+async function fileUpload(functionContext, fileDetails) {
   var logger = functionContext.logger;
 
   logger.logInfo(`fileUpload() Invoked()`);
@@ -703,7 +775,11 @@ async function fileUpload(functionContext, resolvedResult) {
   client.ftp.verbose = true;
   try {
     await client.access(FTPSettings);
-    await client.uploadFrom(resolvedResult.srcPath, resolvedResult.destPath);
+    for (let file = 0; file < fileDetails.length; file++) {
+      const element = fileDetails[file];
+      await client.uploadFrom(element.srcPath, element.destPath);
+      
+    }
    
   } catch (errFileUpload) {
     logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(errFileUpload)}`);
@@ -766,6 +842,43 @@ var deleteAdminComponentsResponse = async (functionContext, resolvedResult) => {
     `deleteAdminComponentsResponse  Response :: ${JSON.stringify(deleteAdminComponentsResponse)}`
   );
   logger.logInfo(`deleteAdminComponentsResponse completed`);
+};
+
+var validateDeleteAdminComponentsResponse = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`validateDeleteAdminComponentsResponse() invoked`);
+
+  var validateDeleteAdminComponentsResponse = new coreRequestModel.ValidateDeleteAdminComponentsResponse();
+
+  validateDeleteAdminComponentsResponse.RequestID = functionContext.requestID;
+  if (functionContext.error) {
+    validateDeleteAdminComponentsResponse.Error = functionContext.error;
+    validateDeleteAdminComponentsResponse.Details = null;
+  } else {
+
+     
+      validateDeleteAdminComponentsResponse.Error = null;
+
+      if (resolvedResult.length>0) {
+        validateDeleteAdminComponentsResponse.Details.ActiveComponents =resolvedResult;
+        validateDeleteAdminComponentsResponse.Details.IsComponentDeletable =false;
+        
+      }else{
+        validateDeleteAdminComponentsResponse.Details.ActiveComponents =[];
+        validateDeleteAdminComponentsResponse.Details.IsComponentDeletable =true;
+
+      }
+
+
+
+  }
+  appLib.SendHttpResponse(functionContext, validateDeleteAdminComponentsResponse);
+
+  logger.logInfo(
+    `validateDeleteAdminComponentsResponse  Response :: ${JSON.stringify(validateDeleteAdminComponentsResponse)}`
+  );
+  logger.logInfo(`validateDeleteAdminComponentsResponse completed`);
 };
 
 var savePlaylistResponse = async (functionContext, resolvedResult) => {
@@ -938,6 +1051,13 @@ var processComponentListData= async (functionContext,requestDetails,resolvedResu
       
     } else if (requestDetails.componentType==constant.COMPONENTS.Schedule) {
       resolvedData.ComponentList=resolvedResult[0];
+      resolvedData.ComponentList.forEach(element => {
+        let days=[];
+        
+        days=JSON.parse(element.Days);
+        element.Days=days;
+        
+      });
       resolvedData.MonitorData=resolvedResult[1];
       details={
         ...resolvedData

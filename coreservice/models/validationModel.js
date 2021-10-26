@@ -30,7 +30,6 @@ module.exports.registerDeviceTokenRequest = (requestParams) => {
   return joiSchema.validate(requestParams);
 };
 
-
 module.exports.saveSystemUserRequest = (requestParams) => {
   var joiSchema = joi.object({
     adminRef: joi.string().allow(null),
@@ -77,6 +76,7 @@ module.exports.savePlaylistRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+
 module.exports.saveScheduleRequest = (requestParams) => {
   var joiSchema = joi.object({
     scheduleRef: joi.string().optional().allow(null),
@@ -100,6 +100,7 @@ module.exports.saveScheduleRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+
 module.exports.saveMonitorRequest = (requestParams) => {
   var joiSchema = joi.object({
     monitorRef: joi.string().optional().allow(null),
@@ -113,6 +114,7 @@ module.exports.saveMonitorRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+
 module.exports.getAdminCompenentRequest = (requestParams) => {
   var joiSchema = joi.object({
     componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   

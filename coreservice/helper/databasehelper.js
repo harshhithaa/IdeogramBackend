@@ -1,8 +1,6 @@
 var databaseModule = require("../database/database");
 var coreRequestModel = require("../models/coreserviceModel");
 var constant = require("../common/constant");
-var general = require("./general");
-
 
 module.exports.fetchAdminLoginDetailsDB = async (
   functionContext,
@@ -221,310 +219,6 @@ module.exports.getAdminComponentsDB = async (
   }
 };
 
-module.exports.updateCustomerDetails = async (
-  functionContext,
-  resolvedResult
-) => {
-  var logger = functionContext.logger;
-  logger.logInfo("updateCustomerDetails() Invoked!");
-
-  logger.logInfo(
-    `updateCustomerDetails() :: CALL usp_update_customer_details('${resolvedResult.customerRef}','${resolvedResult.firstName}','${resolvedResult.lastName}','${resolvedResult.dateOfBirth}','${resolvedResult.phone},'${resolvedResult.email}','${functionContext.currentTs}')'`
-  );
-  try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_update_customer_details('${resolvedResult.customerRef}','${resolvedResult.firstName}','${resolvedResult.lastName}','${resolvedResult.dateOfBirth}','${resolvedResult.phone}','${resolvedResult.email}','${functionContext.currentTs}')`
-    );
-    logger.logInfo(
-      `updateCustomerDetails() :: Returned Result :: ${JSON.stringify(
-        result[0][0][0]
-      )}`
-    );
-    return result[0][0][0];
-  } catch (errUpdateCustomerDetails) {
-    logger.logInfo(
-      `updateCustomerDetails() :: Error :: ${JSON.stringify(
-        errUpdateCustomerDetails
-      )}`
-    );
-    var errorCode = null;
-    var errorMessage = null;
-
-    if (
-      errUpdateCustomerDetails.sqlState &&
-      errUpdateCustomerDetails.sqlState ==
-        constant.ErrorCode.Phone_Already_In_Use
-    ) {
-      errorCode = constant.ErrorCode.Phone_Already_In_Use;
-      errorMessage = constant.ErrorMessage.Phone_Already_In_Use;
-    } else if (
-      errUpdateCustomerDetails.sqlState &&
-      errUpdateCustomerDetails.sqlState ==
-        constant.ErrorCode.Email_Already_In_Use
-    ) {
-      errorCode = constant.ErrorCode.Email_Already_In_Use;
-      errorMessage = constant.ErrorMessage.Email_Already_In_Use;
-    } else {
-      errorCode = constant.ErrorCode.ApplicationError;
-      errorMessage = constant.ErrorMessage.ApplicationError;
-    }
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage,
-      errorCode,
-      JSON.stringify(errUpdateCustomerDetails)
-    );
-    throw functionContext.error;
-  }
-};
-
-module.exports.getMonitorItemDetailsDB = async (
-  functionContext,
-  resolvedResult
-) => {
-  var logger = functionContext.logger;
-  logger.logInfo("getMonitorItemDetailsDB() Invoked!");
-
-  logger.logInfo(
-    `getMonitorItemDetailsDB() :: CALL usp_get_monitors()'`
-  );
-  try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_get_monitors('${functionContext.customerRef}')`
-    );
-    logger.logInfo(
-      `getMonitorItemDetailsDB() :: Returned Result :: ${JSON.stringify(
-        result[0][0]
-      )}`
-    );
-    return result[0][0];
-  } catch (errgetMonitorItemDetailsDB) {
-    var errorCode = null;
-    var errorMessage = null;
-
-    if (
-      errgetMonitorItemDetailsDB.sqlState &&
-      errgetMonitorItemDetailsDB.sqlState ==
-        constant.ErrorCode.Invalid_Restaurant_Ref
-    ) {
-      errorCode = constant.ErrorCode.Invalid_Restaurant_Ref;
-      errorMessage = constant.ErrorMessage.Invalid_Restaurant_Ref;
-    } else {
-      errorCode = constant.ErrorCode.ApplicationError;
-      errorMessage = constant.ErrorMessage.ApplicationError;
-    }
-
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage,
-      errorCode,
-      JSON.stringify(errgetMonitorItemDetailsDB)
-    );
-
-    logger.logInfo(
-      `getMonitorItemDetailsDB() :: Error :: ${JSON.stringify(
-          errgetMonitorItemDetailsDB
-      )}`
-    );
-
-    throw functionContext.error;
-  }
-};
-
-module.exports.saveScheduleDetailsInDB = async (
-  functionContext,
-  resolvedResult
-) => {
-  var logger = functionContext.logger;
-  logger.logInfo("saveDeliveryDetailsInDB() Invoked!");
-
-  logger.logInfo(`saveDeliveryDetailsInDB() :: CALL usp_save_delivery_details('${
-    resolvedResult.name
-  }',
-		'${resolvedResult.description}',
-											'${resolvedResult.deliveryItemDetails.toString({ pretty: true })}',
-                      '${resolvedResult.customer}',
-											'${resolvedResult.currentTs}',
-										'${resolvedResult.scheduleRef}'
-										
-											)`);
-
-  try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_save_schedule_details('${resolvedResult.name}',
-											'${resolvedResult.description}',
-											'${resolvedResult.deliveryItemDetails.toString({ pretty: true })}',
-                      '${resolvedResult.customer}',
-											'${resolvedResult.currentTs}',
-                      	'${resolvedResult.comand}',
-                        	'${resolvedResult.scheduleRef}',
-                          	'${resolvedResult.days}'
-										
-										
-											)`
-    );
-
-    logger.logInfo(`saveDeliveryDetailsInDB() :: Data Saved Successfully${JSON.stringify(
-        result[0][0]
-      )},${JSON.stringify(
-        result[0][1]
-      )}`);
-    return  {
-      BasicDetails: result[0][0],
-      BasicDetails1: result[0][1],
-    };
-  } catch (errSaveDeliveryDetailsInDB) {
-    logger.logInfo(
-      `saveDeliveryDetailsInDB() :: Error :: ${JSON.stringify(
-        errSaveDeliveryDetailsInDB
-      )}`
-    );
-    var errorCode = null;
-    var errorMessage = null;
-    if (
-      errSaveDeliveryDetailsInDB.sqlState &&
-      errSaveDeliveryDetailsInDB.sqlState == constant.ErrorCode.Invalid_User
-    ) {
-      errorCode = constant.ErrorCode.Invalid_User;
-      errorMessage = constant.ErrorMessage.Invalid_User;
-    } else {
-      errorCode = constant.ErrorCode.ApplicationError;
-      errorMessage = constant.ErrorMessage.ApplicationError;
-    }
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage,
-      errorCode,
-      JSON.stringify(errSaveRestaurantItemDetailsDB)
-    );
-    throw functionContext.error;
-  }
-};
-
-module.exports.saveDeliveryDetailsInDB = async (
-  functionContext,
-  resolvedResult
-) => {
-  var logger = functionContext.logger;
-  logger.logInfo("saveDeliveryDetailsInDB() Invoked!");
-
-  logger.logInfo(`saveDeliveryDetailsInDB() :: CALL usp_save_delivery_details('${
-    resolvedResult.name
-  }',
-		'${resolvedResult.description}',
-											'${resolvedResult.deliveryItemDetails.toString({ pretty: true })}',
-                      '${resolvedResult.customer}',
-											'${resolvedResult.currentTs}',
-										'${resolvedResult.PlaylistRef}'
-										
-											)`);
-
-  try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_save_delivery_details('${resolvedResult.name}',
-											'${resolvedResult.description}',
-											'${resolvedResult.deliveryItemDetails.toString({ pretty: true })}',
-                      '${resolvedResult.customer}',
-											'${resolvedResult.currentTs}',
-                      	'${resolvedResult.comand}',
-                        	'${resolvedResult.PlaylistRef}'
-										
-										
-											)`
-    );
-
-    logger.logInfo(`saveDeliveryDetailsInDB() :: Data Saved Successfully`);
-    return result[0][0][0];
-  } catch (errSaveDeliveryDetailsInDB) {
-    logger.logInfo(
-      `saveDeliveryDetailsInDB() :: Error :: ${JSON.stringify(
-        errSaveDeliveryDetailsInDB
-      )}`
-    );
-    var errorCode = null;
-    var errorMessage = null;
-    if (
-      errSaveDeliveryDetailsInDB.sqlState &&
-      errSaveDeliveryDetailsInDB.sqlState == constant.ErrorCode.Invalid_User
-    ) {
-      errorCode = constant.ErrorCode.Invalid_User;
-      errorMessage = constant.ErrorMessage.Invalid_User;
-    } else {
-      errorCode = constant.ErrorCode.ApplicationError;
-      errorMessage = constant.ErrorMessage.ApplicationError;
-    }
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage,
-      errorCode,
-      JSON.stringify(errSaveRestaurantItemDetailsDB)
-    );
-    throw functionContext.error;
-  }
-};
-
-module.exports.getscheduleDetailsInDB = async (
-  functionContext,
-  resolvedResult
-) => {
-  var logger = functionContext.logger;
-  logger.logInfo("saveDeliveryDetailsInDB() Invoked!");
-
-  logger.logInfo(`saveDeliveryDetailsInDB() :: CALL usp_save_delivery_details('${
-    resolvedResult.name
-  }',
-		'${resolvedResult.description}',
-										
-                      '${resolvedResult.customer}',
-											'${resolvedResult.currentTs}'
-										
-										
-											)`);
-
-  try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_get_schedules_details('${resolvedResult.name}',
-											'${resolvedResult.description}',
-											
-                      '${resolvedResult.customer}',
-											'${resolvedResult.currentTs}',
-                      	'${resolvedResult.comand}'
-										
-										
-											)`
-    );
-
-    logger.logInfo(`saveDeliveryDetailsInDB() :: Data Saved Successfully${JSON.stringify(
-        result[0][0]
-      )}`);
-    // return result[0][0];
-     return {
-      BasicDetails: result[0][0],
-      BasicDetails1: result[0][1],
-    };
-  } catch (errSaveDeliveryDetailsInDB) {
-    logger.logInfo(
-      `saveDeliveryDetailsInDB() :: Error :: ${JSON.stringify(
-        errSaveDeliveryDetailsInDB
-      )}`
-    );
-    var errorCode = null;
-    var errorMessage = null;
-    if (
-      errSaveDeliveryDetailsInDB.sqlState &&
-      errSaveDeliveryDetailsInDB.sqlState == constant.ErrorCode.Invalid_User
-    ) {
-      errorCode = constant.ErrorCode.Invalid_User;
-      errorMessage = constant.ErrorMessage.Invalid_User;
-    } else {
-      errorCode = constant.ErrorCode.ApplicationError;
-      errorMessage = constant.ErrorMessage.ApplicationError;
-    }
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage,
-      errorCode,
-      JSON.stringify(errSaveRestaurantItemDetailsDB)
-    );
-    throw functionContext.error;
-  }
-};
-
 module.exports.getAdminComponentListInDB = async (
   functionContext,
   resolvedResult
@@ -608,6 +302,50 @@ module.exports.getAdminComponentDetailsInDB = async (
       errorMessage,
       errorCode,
       JSON.stringify(errSaveRestaurantItemDetailsDB)
+    );
+    throw functionContext.error;
+  }
+};
+
+module.exports.ValidateDeleteAdminComponentListInDB = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("ValidatedeleteAdminComponentListInDB() Invoked!");
+
+
+  try {
+    let result = await databaseModule.knex.raw(`CALL usp_validate_delete_admin_components('${functionContext.userRef}','${resolvedResult.componentType}','${JSON.stringify(resolvedResult.componentList)}')`);
+
+
+    logger.logInfo(`ValidatedeleteAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
+        result[0][0]
+      )}`);
+    return result[0][0];
+  
+  } catch (errValidatedeleteAdminComponentListInDB) {
+    logger.logInfo(
+      `ValidatedeleteAdminComponentListInDB() :: Error :: ${JSON.stringify(
+        errValidatedeleteAdminComponentListInDB
+      )}`
+    );
+    var errorCode = null;
+    var errorMessage = null;
+    if (
+      errValidatedeleteAdminComponentListInDB.sqlState &&
+      errValidatedeleteAdminComponentListInDB.sqlState == constant.ErrorCode.Invalid_User
+    ) {
+      errorCode = constant.ErrorCode.Invalid_User;
+      errorMessage = constant.ErrorMessage.Invalid_User;
+    } else {
+      errorCode = constant.ErrorCode.ApplicationError;
+      errorMessage = constant.ErrorMessage.ApplicationError;
+    }
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage,
+      errorCode,
+      JSON.stringify(errValidatedeleteAdminComponentListInDB)
     );
     throw functionContext.error;
   }
@@ -725,38 +463,6 @@ module.exports.registerDeviceTokenInDB = async (
       `registerDeviceTokenInDB() :: Error :: ${JSON.stringify(
         errRegisterDeviceTokenInDB
       )}`
-    );
-    throw functionContext.error;
-  }
-};
-
-module.exports.getCustomerBasicInfo = async (functionContext, userRef) => {
-  var logger = functionContext.logger;
-
-  logger.logInfo("getCustomerBasicInfo() Invoked!");
-  try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_get_customer_basic_info('${userRef}')`
-    );
-
-    logger.logInfo(
-      `getCustomerBasicInfo() :: Customer's Basic Info Fetched Successfully`
-    );
-
-    return {
-      BasicDetails: result[0][0][0],
-      AddressDetails: result[0][1],
-    };
-  } catch (errGetCustomerBasicInfo) {
-    logger.logInfo(
-      `getCustomerBasicInfo() :: Error :: ${JSON.stringify(
-        errGetCustomerBasicInfo
-      )}`
-    );
-    functionContext.error = new coreRequestModel.ErrorModel(
-      constant.ErrorMessage.ApplicationError,
-      constant.ErrorCode.ApplicationError,
-      JSON.stringify(errGetCustomerBasicInfo)
     );
     throw functionContext.error;
   }
@@ -892,6 +598,7 @@ module.exports.savePlaylistDB = async (
     throw functionContext.error;
   }
 };
+
 module.exports.saveScheduleDB = async (
   functionContext,
   resolvedResult
@@ -928,6 +635,7 @@ module.exports.saveScheduleDB = async (
     throw functionContext.error;
   }
 };
+
 module.exports.saveMonitorDB = async (
   functionContext,
   resolvedResult
@@ -964,6 +672,7 @@ module.exports.saveMonitorDB = async (
     throw functionContext.error;
   }
 };
+
 module.exports.fetchMonitorDetailsRequest = async (
   functionContext,
   resolvedResult
@@ -976,7 +685,7 @@ module.exports.fetchMonitorDetailsRequest = async (
     );
     logger.logInfo(
       `fetchMonitorDetailsRequest() :: Returned Result :: ${JSON.stringify(
-        rows[0][0]
+        rows[0]
       )}` 
     );
     var result = rows[0] ? rows[0]: null;

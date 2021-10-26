@@ -8,6 +8,8 @@ var settings = require("../common/settings").Settings;
 var joiValidationModel = require("../models/validationModel");
 const mailSettings = require("../common/settings").MailSettings;
 var mailer = new appLib.Mailer(mailSettings);
+var moment = require("moment-timezone");
+
 
 
 module.exports.MonitorLogin = async (req, res) => {
@@ -141,9 +143,11 @@ module.exports.AdminLogout = async (req, res) => {
         functionContext,
         requestContext
       );
+
+      let processScheduleDetailsResult= await processScheduleDetails(functionContext,fetchMonitorDetailsResult);
   
   
-      fetchMonitorDetailsResponse(functionContext, fetchMonitorDetailsResult);
+      fetchMonitorDetailsResponse(functionContext, processScheduleDetailsResult);
     } catch (errMonitorDetails) {
       if (!errMonitorDetails.ErrorMessage && !errMonitorDetails.ErrorCode) {
         logger.logInfo(`fetchMonitorDetailsResponse() :: Error :: ${errMonitorDetails}`);
@@ -275,8 +279,8 @@ module.exports.AdminLogout = async (req, res) => {
     } else {
       MonitorDetailsResponse.Error = null;
 
-      MonitorDetailsResponse.Details.MediaList = resolvedResult[1];
-      MonitorDetailsResponse.Details.ScheduleDetails = resolvedResult[2] ? resolvedResult[2][0] :null;
+      MonitorDetailsResponse.Details.MediaList = resolvedResult;
+      // MonitorDetailsResponse.Details.ScheduleDetails = resolvedResult[2] ? resolvedResult[2][0] :null;
   
     
       
@@ -287,6 +291,48 @@ module.exports.AdminLogout = async (req, res) => {
     );
     logger.logInfo(`fetchMonitorDetailsResponse completed`);
   };
+
+  var processScheduleDetails=(functionContext,resolvedResult)=>{
+    var logger = functionContext.logger;
+  
+    logger.logInfo(`processScheduleDetails() invoked`);
+
+    var finalPlaylist=[]
+
+
+    let day=moment().utc(new Date(), "YYYY-MM-DD HH:mm:ss").tz("Asia/Kolkata").day();
+    day=day.toString();
+
+    console.log(day);
+
+    if (resolvedResult.length==5) {
+      var scheduledPlaylist=resolvedResult[1]?resolvedResult[1]:[];
+      var scheduleDetails=resolvedResult[2]?resolvedResult[2][0]:[];
+      var defaultPlaylist=resolvedResult[3]?resolvedResult[3]:[];
+
+      var days=JSON.parse(scheduleDetails.Days);
+      
+    }else{
+      var defaultPlaylist=resolvedResult[1]?resolvedResult[1]:[];
+
+      finalPlaylist=defaultPlaylist;
+
+    }
+
+    if (days && days.length>0) {
+      finalPlaylist= days.includes(day)?scheduledPlaylist:defaultPlaylist;
+      
+    }else{
+      finalPlaylist=defaultPlaylist;
+    }
+
+
+
+
+    return finalPlaylist;
+
+
+  }
 
   
 
