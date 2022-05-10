@@ -33,7 +33,7 @@ module.exports.registerDeviceTokenRequest = (requestParams) => {
 
 module.exports.saveSystemUserRequest = (requestParams) => {
   var joiSchema = joi.object({
-    adminRef: joi.string().allow(null),
+    adminRef: joi.string().optional().allow(null),
     userName: joi.string().required(),
     password: joi.string().allow(null),
     email: joi.string().required(),

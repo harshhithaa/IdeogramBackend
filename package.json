@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/Coppercodes1/ideoback/issues"
   },
-  "homepage": "https://github.com/Coppercodes1/ideoback#readme"
+  "homepage": "https://github.com/Coppercodes1/ideoback#readme",
+  "dependencies": {
+    "cron": "^1.8.2"
+  }
 }
