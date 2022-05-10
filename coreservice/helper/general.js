@@ -27,7 +27,7 @@ exports.getFileUploadConfig = multer({
   storage: multer.diskStorage({
     destination: fileConfiguration.LocalStorage,
     filename: function (req, file, cb) {
-      cb(null, new Date().toDateString() + file.originalname);
+      cb(null,new Date().toDateString()+file.originalname);
     },
   }),
   fileFilter: (req, file, cb) => {

@@ -25,8 +25,6 @@ module.exports.ErrorMessage = {
   Invalid_Playlist_Ref: "Invalid Playlist Reference",
   Invalid_Schedule_Ref: "Invalid Schedule Reference",
   Invalid_Monitor_Ref: "Invalid Monitor Reference",
- 
-  
 };
 
 module.exports.RequestType = {
@@ -37,16 +35,19 @@ module.exports.RequestType = {
   SAVEMEDIA:"SM",
   SAVEPLAYLIST:"SP",
   GETADMINCOMPONENTS:"GAC",
+  GETADMINCOMPONENTSDETAILS:"GAC",
   SAVESCHEDULE:"SS",
   SAVEMONITOR:"SM",
-};
-
+  DELETEADMINCOMPONENTS:"DAC",
+  VALIDATEDELETEADMINCOMPONENTS:"VDAC",
+  MONITORLOGIN:"ML",
+  FETCHMONITORDETAILS:"FMD",
+};  
 
 module.exports.CustomerVerificationStatus = {
   PENDING: 1,
   VERIFIED: 2,
 };
-
 
 module.exports.LoginType = {
   PHONELOGIN: 1,
