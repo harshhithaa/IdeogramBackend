@@ -759,7 +759,9 @@ async function fileUpload(functionContext, fileDetails) {
   const client = new ftp.Client();
   client.ftp.verbose = true;
   try {
-    await client.access(FTPSettings);
+    await client.access(
+      
+    );
     for (let file = 0; file < fileDetails.length; file++) {
       const element = fileDetails[file];
       await client.uploadFrom(element.srcPath, element.destPath);
@@ -770,6 +772,7 @@ async function fileUpload(functionContext, fileDetails) {
     logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(errFileUpload)}`);
     functionContext.error = new coreRequestModel.ErrorModel(
       constant.ErrorMessage.ApplicationError,
+      
       constant.ErrorCode.ApplicationError
     );
     throw functionContext.error;
@@ -1036,13 +1039,18 @@ var processComponentListData= async (functionContext,requestDetails,resolvedResu
       
     } else if (requestDetails.componentType==constant.COMPONENTS.Schedule) {
       resolvedData.ComponentList=resolvedResult[0];
-      resolvedData.ComponentList.forEach(element => {
+      for(var i=0; i < resolvedData.ComponentList.length; i++){
         let days=[];
+        days=JSON.parse(resolvedData.ComponentList[i].Days);
+        resolvedData.ComponentList[i].Days=days;
+      }
+      // resolvedData.ComponentList.forEach(element => {
+      //   let days=[];
         
-        days=JSON.parse(element.Days);
-        element.Days=days;
+      //   days=JSON.parse(element.Days);
+      //   element.Days=days;
         
-      });
+      // });
       resolvedData.MonitorData=resolvedResult[1];
       details={
         ...resolvedData

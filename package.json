@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Coppercodes1/ideoback#readme",
   "dependencies": {
-    "cron": "^1.8.2"
+    "cron": "^1.8.2",
+    "icmp": "^2.0.1"
   }
 }

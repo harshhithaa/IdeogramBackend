@@ -5,24 +5,23 @@ var unlink=require('fs').unlink
 var icmp = require('icmp')
 var nodemailer = require("nodemailer");
 
-async function main() {
+async function sendEmail() {
   // create reusable transporter object using the default SMTP transport
   let transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: 'akshay.shirwaikar@gmail.com', // generated ethereal user
-      pass: 'vxxtgamwhozzddqg', // generated ethereal password
+      user: 'coppercodes@gmail.com',
+      pass: '(cztYm8tm8aq3;EZ',
     },
   });
 
     let info = await transporter.sendMail({
     from: 'akshay.shirwaikar@gmail.com', // sender address
-    to: "coppercodes@gmail.com", // list of receivers
-    subject: "Hello", // Subject line
-    text: "Hello world?", // plain text body
-    html: "<b>Hello world?</b>", // html body
+    to: 'akshay.shirwaikar@gmail.com', // list of receivers
+    subject: "Ideogram", // Subject line
+    text: "Something is wrong. Please check", // plain text body
   });
 
   console.log("Message sent: %s", info.messageId);
@@ -59,11 +58,11 @@ var job1 = new CronJob('0 0 */28 * *', function() {
 }, null, true, 'Asia/Kolkata');
 
 var job2 = new CronJob('* * * * *',()=>{
-  icmp.ping('134.209.154.152',500)
-  .then(obj => {console.log(obj.open ? 'Chalta' : 'Failed')})
+  icmp.ping('139.59.80.1',2000)
+  .then(obj => {console.log(obj.open ? 'Chalta' : sendEmail().catch(console.error))})
   .catch(err=>console.log(err))
 
-})
+}, null, true, 'Asia/Kolkata')
 
 job1.start();
 job2.start();
