@@ -42,19 +42,12 @@ app.use("/api/monitor", monitorRoute);
 // Fetch Primary Setings From Database Residing in applib
 async function startServerProcess(logger) {
   try {
-  
     logger.logInfo(`StartServerProcess Invoked()`);
-    await appLib.fetchDBSettings(
-      logger,
-      settings,
-      databaseModule
-    );
- 
+    await appLib.fetchDBSettings(logger, settings, databaseModule);
+
     app.listen(process.env.NODE_PORT, () => {
-      
       logger.logInfo("server running on port " + process.env.NODE_PORT);
       console.log("server running on port " + process.env.NODE_PORT);
-    
     });
   } catch (errFetchDBSettings) {
     logger.logInfo(

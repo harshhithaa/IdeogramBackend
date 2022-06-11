@@ -14,7 +14,7 @@ module.exports.validateRequest = (requestParams) => {
 module.exports.adminLoginRequest = (requestParams) => {
   var joiSchema = joi.object({
     email: joi.string().required(),
-    password: joi.string().required()
+    password: joi.string().required(),
   });
   return joiSchema.validate(requestParams);
 };
@@ -46,14 +46,20 @@ module.exports.saveMediaRequest = (requestParams) => {
   var joiSchema = joi.object({
     userReference: joi.string().required(),
     currentTs: joi.string().optional(),
-
   });
   return joiSchema.validate(requestParams);
 };
 
 module.exports.getAdminComponentRequest = (requestParams) => {
   var joiSchema = joi.object({
-    componentType: joi.number().valid(constant.COMPONENTS.Media, constant.COMPONENTS.Playlist, constant.COMPONENTS.Schedule, constant.COMPONENTS.Monitor)
+    componentType: joi
+      .number()
+      .valid(
+        constant.COMPONENTS.Media,
+        constant.COMPONENTS.Playlist,
+        constant.COMPONENTS.Schedule,
+        constant.COMPONENTS.Monitor
+      ),
   });
   return joiSchema.validate(requestParams);
 };
@@ -70,9 +76,9 @@ module.exports.savePlaylistRequest = (requestParams) => {
         MediaRef: joi.string().required(),
         IsActive: joi.number().required().allow(1, 0),
       })
-      .optional().allow(null),
+      .optional()
+      .allow(null),
     currentTs: joi.string().optional(),
-
   });
   return joiSchema.validate(requestParams);
 };
@@ -94,9 +100,9 @@ module.exports.saveScheduleRequest = (requestParams) => {
         EndDate: joi.string().required(),
         Days: joi.array().required(),
       })
-      .optional().allow(null),
+      .optional()
+      .allow(null),
     currentTs: joi.string().optional(),
-
   });
   return joiSchema.validate(requestParams);
 };
@@ -111,24 +117,38 @@ module.exports.saveMonitorRequest = (requestParams) => {
     isActive: joi.number().required(),
     currentTs: joi.string().optional(),
     orientation: joi.string().required(),
-    slideTime: joi.number.required()
+    slideTime: joi.number().required(),
   });
   return joiSchema.validate(requestParams);
 };
 
 module.exports.getAdminCompenentRequest = (requestParams) => {
   var joiSchema = joi.object({
-    componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   
-
+    componentType: joi
+      .number()
+      .required()
+      .valid(
+        constant.COMPONENTS.Media,
+        constant.COMPONENTS.Playlist,
+        constant.COMPONENTS.Schedule,
+        constant.COMPONENTS.Monitor
+      ),
   });
   return joiSchema.validate(requestParams);
 };
 
 module.exports.getAdminComponentDetailsRequest = (requestParams) => {
   var joiSchema = joi.object({
-    componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   
+    componentType: joi
+      .number()
+      .required()
+      .valid(
+        constant.COMPONENTS.Media,
+        constant.COMPONENTS.Playlist,
+        constant.COMPONENTS.Schedule,
+        constant.COMPONENTS.Monitor
+      ),
     componentRef: joi.string().required().allow(null),
-
   });
   return joiSchema.validate(requestParams);
 };
@@ -142,10 +162,17 @@ module.exports.monitorDetailsRequest = (requestParams) => {
 
 module.exports.deleteAdminCompenentRequest = (requestParams) => {
   var joiSchema = joi.object({
-    componentType: joi.number().required().valid(constant.COMPONENTS.Media,constant.COMPONENTS.Playlist,constant.COMPONENTS.Schedule,constant.COMPONENTS.Monitor),   
-    componentList: joi.array().required(),   
+    componentType: joi
+      .number()
+      .required()
+      .valid(
+        constant.COMPONENTS.Media,
+        constant.COMPONENTS.Playlist,
+        constant.COMPONENTS.Schedule,
+        constant.COMPONENTS.Monitor
+      ),
+    componentList: joi.array().required(),
     currentTs: joi.string().optional(),
-
   });
   return joiSchema.validate(requestParams);
 };
@@ -153,9 +180,7 @@ module.exports.deleteAdminCompenentRequest = (requestParams) => {
 module.exports.monitorLoginRequest = (requestParams) => {
   var joiSchema = joi.object({
     monitorUser: joi.string().required(),
-    password: joi.string().required()
-
+    password: joi.string().required(),
   });
   return joiSchema.validate(requestParams);
 };
-
