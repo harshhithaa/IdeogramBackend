@@ -1,7 +1,7 @@
 var appLib = require("applib");
 var uuid = appLib.UUID.prototype;
 var databaseHelper = require("../helper/databasehelper");
-var coreRequestModel = require("../models/coreserviceModel");
+var coreRequestModel = require("../models/coreServiceModel");
 var joiValidationModel = require("../models/validationModel");
 var settings = require("../common/settings").Settings;
 var mailSettings = require("../common/settings").MailSettings;
@@ -9,7 +9,6 @@ var constant = require("../common/constant");
 var requestType = constant.RequestType;
 
 exports.AuthenticateRequest = async function (req, res, next) {
-
   var requestID = uuid.GetTimeBasedID();
   var logger = new appLib.Logger(req.originalUrl, requestID);
   var mailer = new appLib.Mailer(mailSettings);
@@ -30,7 +29,7 @@ exports.AuthenticateRequest = async function (req, res, next) {
   var validateResponse = new coreRequestModel.ValidateResponse(req);
   var validateAPIRequest = joiValidationModel.validateRequest(validateRequest);
 
-  validateResponse.RequestID = requestID; 
+  validateResponse.RequestID = requestID;
 
   if (validateAPIRequest.error) {
     functionContext.error = new coreRequestModel.ErrorModel(
@@ -89,7 +88,7 @@ exports.AuthenticateRequest = async function (req, res, next) {
       functionContext,
       validateRequest
     );
-    
+
     apiContext.userType = validateRequestResult.UserType;
     apiContext.userRef = validateRequestResult.UserRef;
     apiContext.userID = validateRequestResult.UserID;
@@ -111,7 +110,6 @@ exports.AuthenticateRequest = async function (req, res, next) {
     appLib.SendHttpResponse(functionContext, validateResponse);
   }
 };
-
 
 var authentication = (functionContext) => {
   var logger = functionContext.logger;

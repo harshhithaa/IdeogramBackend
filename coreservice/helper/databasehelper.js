@@ -1,5 +1,5 @@
 var databaseModule = require("../database/database");
-var coreRequestModel = require("../models/coreserviceModel");
+var coreRequestModel = require("../models/coreServiceModel");
 var constant = require("../common/constant");
 
 module.exports.fetchAdminLoginDetailsDB = async (
@@ -8,10 +8,10 @@ module.exports.fetchAdminLoginDetailsDB = async (
 ) => {
   var logger = functionContext.logger;
   logger.logInfo("fetchAdminLoginDetailsDB() Invoked!");
-    try {
-      let rows = await databaseModule.knex.raw(
+  try {
+    let rows = await databaseModule.knex.raw(
       `CALL usp_fetch_admin_login_details('${resolvedResult.email}')`
-      );
+    );
     logger.logInfo(
       `fetchAdminLoginDetailsDB() :: Returned Result :: ${JSON.stringify(
         rows[0][0]
@@ -179,18 +179,22 @@ module.exports.getAdminComponentsDB = async (
   var logger = functionContext.logger;
   logger.logInfo("getAdminComponentsDB() Invoked!");
 
-  logger.logInfo(`getAdminComponentsDB() :: CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`);
+  logger.logInfo(
+    `getAdminComponentsDB() :: CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`
+  );
 
   try {
     let result = await databaseModule.knex.raw(
       `CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`
     );
 
-    logger.logInfo(`getAdminComponentsDB() :: Data Saved Successfully${JSON.stringify(
+    logger.logInfo(
+      `getAdminComponentsDB() :: Data Saved Successfully${JSON.stringify(
         result[0][0]
-      )}`);
-     return {
-      ComponentDetails: result[0][0]
+      )}`
+    );
+    return {
+      ComponentDetails: result[0][0],
     };
   } catch (errgetAdminComponentsDB) {
     logger.logInfo(
@@ -226,16 +230,17 @@ module.exports.getAdminComponentListInDB = async (
   var logger = functionContext.logger;
   logger.logInfo("getAdminComponentListInDB() Invoked!");
 
-
   try {
     let result = await databaseModule.knex.raw(
-      `CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`);
+      `CALL usp_get_admin_components('${functionContext.userRef}','${resolvedResult.componentType}')`
+    );
 
-    logger.logInfo(`getAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
+    logger.logInfo(
+      `getAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
         result[0]
-      )}`);
+      )}`
+    );
     return result[0];
-  
   } catch (errSaveDeliveryDetailsInDB) {
     logger.logInfo(
       `saveDeliveryDetailsInDB() :: Error :: ${JSON.stringify(
@@ -270,16 +275,17 @@ module.exports.getAdminComponentDetailsInDB = async (
   var logger = functionContext.logger;
   logger.logInfo("getAdminComponentDetailsInDB() Invoked!");
 
-
   try {
     let result = await databaseModule.knex.raw(
-      `CALL usp_get_admin_components_details('${resolvedResult.componentType}','${resolvedResult.componentRef}')`);
+      `CALL usp_get_admin_components_details('${resolvedResult.componentType}','${resolvedResult.componentRef}')`
+    );
 
-    logger.logInfo(`getAdminComponentDetailsInDB() :: Data Saved Successfully${JSON.stringify(
+    logger.logInfo(
+      `getAdminComponentDetailsInDB() :: Data Saved Successfully${JSON.stringify(
         result[0]
-      )}`);
+      )}`
+    );
     return result[0];
-  
   } catch (errGetAdminComponentsDetailsInDB) {
     logger.logInfo(
       `getAdminComponentInDB() :: Error :: ${JSON.stringify(
@@ -290,7 +296,8 @@ module.exports.getAdminComponentDetailsInDB = async (
     var errorMessage = null;
     if (
       errGetAdminComponentsDetailsInDB.sqlState &&
-      errGetAdminComponentsDetailsInDB.sqlState == constant.ErrorCode.Invalid_User
+      errGetAdminComponentsDetailsInDB.sqlState ==
+        constant.ErrorCode.Invalid_User
     ) {
       errorCode = constant.ErrorCode.Invalid_User;
       errorMessage = constant.ErrorMessage.Invalid_User;
@@ -314,16 +321,21 @@ module.exports.ValidateDeleteAdminComponentListInDB = async (
   var logger = functionContext.logger;
   logger.logInfo("ValidatedeleteAdminComponentListInDB() Invoked!");
 
-
   try {
-    let result = await databaseModule.knex.raw(`CALL usp_validate_delete_admin_components('${functionContext.userRef}','${resolvedResult.componentType}','${JSON.stringify(resolvedResult.componentList)}')`);
+    let result = await databaseModule.knex.raw(
+      `CALL usp_validate_delete_admin_components('${
+        functionContext.userRef
+      }','${resolvedResult.componentType}','${JSON.stringify(
+        resolvedResult.componentList
+      )}')`
+    );
 
-
-    logger.logInfo(`ValidatedeleteAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
+    logger.logInfo(
+      `ValidatedeleteAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
         result[0][0]
-      )}`);
+      )}`
+    );
     return result[0][0];
-  
   } catch (errValidatedeleteAdminComponentListInDB) {
     logger.logInfo(
       `ValidatedeleteAdminComponentListInDB() :: Error :: ${JSON.stringify(
@@ -334,7 +346,8 @@ module.exports.ValidateDeleteAdminComponentListInDB = async (
     var errorMessage = null;
     if (
       errValidatedeleteAdminComponentListInDB.sqlState &&
-      errValidatedeleteAdminComponentListInDB.sqlState == constant.ErrorCode.Invalid_User
+      errValidatedeleteAdminComponentListInDB.sqlState ==
+        constant.ErrorCode.Invalid_User
     ) {
       errorCode = constant.ErrorCode.Invalid_User;
       errorMessage = constant.ErrorMessage.Invalid_User;
@@ -358,16 +371,19 @@ module.exports.deleteAdminComponentListInDB = async (
   var logger = functionContext.logger;
   logger.logInfo("deleteAdminComponentListInDB() Invoked!");
 
-
   try {
-    let result = await databaseModule.knex.raw(`CALL usp_delete_admin_components('${functionContext.userRef}','${resolvedResult.componentType}','${JSON.stringify(resolvedResult.componentList)}')`);
+    let result = await databaseModule.knex.raw(
+      `CALL usp_delete_admin_components('${functionContext.userRef}','${
+        resolvedResult.componentType
+      }','${JSON.stringify(resolvedResult.componentList)}')`
+    );
 
-
-    logger.logInfo(`deleteAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
+    logger.logInfo(
+      `deleteAdminComponentListInDB() :: Data Saved Successfully${JSON.stringify(
         result[0][0]
-      )}`);
+      )}`
+    );
     return result[0][0];
-  
   } catch (errdeleteAdminComponentListInDB) {
     logger.logInfo(
       `deleteAdminComponentListInDB() :: Error :: ${JSON.stringify(
@@ -378,7 +394,8 @@ module.exports.deleteAdminComponentListInDB = async (
     var errorMessage = null;
     if (
       errdeleteAdminComponentListInDB.sqlState &&
-      errdeleteAdminComponentListInDB.sqlState == constant.ErrorCode.Invalid_User
+      errdeleteAdminComponentListInDB.sqlState ==
+        constant.ErrorCode.Invalid_User
     ) {
       errorCode = constant.ErrorCode.Invalid_User;
       errorMessage = constant.ErrorMessage.Invalid_User;
@@ -403,7 +420,7 @@ module.exports.validateRequest = async (functionContext, resolvedResult) => {
     let result = await databaseModule.knex.raw(
       `CALL usp_validate_request('${resolvedResult.apiUri}','${resolvedResult.authToken}')`
     );
-    logger. logInfo("validateRequest() :: Api validanted Successfully");
+    logger.logInfo("validateRequest() :: Api validanted Successfully");
     return result[0][0][0];
   } catch (errValidateRequest) {
     logger.logInfo(
@@ -525,10 +542,7 @@ module.exports.checkIfUserIsPresentInDB = async (
   }
 };
 
-module.exports.saveMediaDB = async (
-  functionContext,
-  resolvedResult
-) => {
+module.exports.saveMediaDB = async (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
   logger.logInfo("saveMediaDB() Invoked!");
   try {
@@ -536,36 +550,28 @@ module.exports.saveMediaDB = async (
       `CALL usp_save_media('${JSON.stringify(resolvedResult)}')`
     );
     logger.logInfo(
-      `saveMediaDB() :: Returned Result :: ${JSON.stringify(
-        rows[0][0]
-      )}` 
+      `saveMediaDB() :: Returned Result :: ${JSON.stringify(rows[0][0])}`
     );
     var result = rows[0][0] ? rows[0][0] : null;
     return result;
   } catch (errsaveMediaDB) {
     logger.logInfo(
-      `saveMediaDB() :: Error :: ${JSON.stringify(
-        errsaveMediaDB
-      )}`
+      `saveMediaDB() :: Error :: ${JSON.stringify(errsaveMediaDB)}`
     );
-  
- 
+
     functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage=constant.ErrorMessage.ApplicationError,
-      errorCode=constant.ErrorCode.ApplicationError,
+      (errorMessage = constant.ErrorMessage.ApplicationError),
+      (errorCode = constant.ErrorCode.ApplicationError),
       {
-        sqlMessage:errsaveMediaDB.sqlMessage,
-        stack:errsaveMediaDB.stack,
+        sqlMessage: errsaveMediaDB.sqlMessage,
+        stack: errsaveMediaDB.stack,
       }
     );
     throw functionContext.error;
   }
 };
 
-module.exports.savePlaylistDB = async (
-  functionContext,
-  resolvedResult
-) => {
+module.exports.savePlaylistDB = async (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
   logger.logInfo("savePlaylistDB() Invoked!");
   try {
@@ -573,36 +579,28 @@ module.exports.savePlaylistDB = async (
       `CALL usp_save_playlist('${JSON.stringify(resolvedResult)}')`
     );
     logger.logInfo(
-      `savePlaylistDB() :: Returned Result :: ${JSON.stringify(
-        rows[0][0]
-      )}` 
+      `savePlaylistDB() :: Returned Result :: ${JSON.stringify(rows[0][0])}`
     );
     var result = rows[0][0][0] ? rows[0][0][0] : null;
     return result;
   } catch (errsavePlaylistDB) {
     logger.logInfo(
-      `savePlaylistDB() :: Error :: ${JSON.stringify(
-        errsavePlaylistDB
-      )}`
+      `savePlaylistDB() :: Error :: ${JSON.stringify(errsavePlaylistDB)}`
     );
-  
- 
+
     functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage=constant.ErrorMessage.ApplicationError,
-      errorCode=constant.ErrorCode.ApplicationError,
+      (errorMessage = constant.ErrorMessage.ApplicationError),
+      (errorCode = constant.ErrorCode.ApplicationError),
       {
-        sqlMessage:errsavePlaylistDB.sqlMessage,
-        stack:errsavePlaylistDB.stack,
+        sqlMessage: errsavePlaylistDB.sqlMessage,
+        stack: errsavePlaylistDB.stack,
       }
     );
     throw functionContext.error;
   }
 };
 
-module.exports.saveScheduleDB = async (
-  functionContext,
-  resolvedResult
-) => {
+module.exports.saveScheduleDB = async (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
   logger.logInfo("saveScheduleDB() Invoked!");
   try {
@@ -610,36 +608,28 @@ module.exports.saveScheduleDB = async (
       `CALL usp_save_schedule('${JSON.stringify(resolvedResult)}')`
     );
     logger.logInfo(
-      `saveScheduleDB() :: Returned Result :: ${JSON.stringify(
-        rows[0][0]
-      )}` 
+      `saveScheduleDB() :: Returned Result :: ${JSON.stringify(rows[0][0])}`
     );
     var result = rows[0][0][0] ? rows[0][0][0] : null;
     return result;
   } catch (errsaveScheduleDB) {
     logger.logInfo(
-      `saveScheduleDB() :: Error :: ${JSON.stringify(
-        errsaveScheduleDB
-      )}`
+      `saveScheduleDB() :: Error :: ${JSON.stringify(errsaveScheduleDB)}`
     );
-  
- 
+
     functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage=constant.ErrorMessage.ApplicationError,
-      errorCode=constant.ErrorCode.ApplicationError,
+      (errorMessage = constant.ErrorMessage.ApplicationError),
+      (errorCode = constant.ErrorCode.ApplicationError),
       {
-        sqlMessage:errsaveScheduleDB.sqlMessage,
-        stack:errsaveScheduleDB.stack,
+        sqlMessage: errsaveScheduleDB.sqlMessage,
+        stack: errsaveScheduleDB.stack,
       }
     );
     throw functionContext.error;
   }
 };
 
-module.exports.saveMonitorDB = async (
-  functionContext,
-  resolvedResult
-) => {
+module.exports.saveMonitorDB = async (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
   logger.logInfo("saveMonitorDB() Invoked!");
   try {
@@ -647,26 +637,21 @@ module.exports.saveMonitorDB = async (
       `CALL usp_save_monitor('${JSON.stringify(resolvedResult)}')`
     );
     logger.logInfo(
-      `saveMonitorDB() :: Returned Result :: ${JSON.stringify(
-        rows[0][0]
-      )}` 
+      `saveMonitorDB() :: Returned Result :: ${JSON.stringify(rows[0][0])}`
     );
     var result = rows[0][0][0] ? rows[0][0][0] : null;
     return result;
   } catch (errsaveMonitorDB) {
     logger.logInfo(
-      `saveMonitorDB() :: Error :: ${JSON.stringify(
-        errsaveMonitorDB
-      )}`
+      `saveMonitorDB() :: Error :: ${JSON.stringify(errsaveMonitorDB)}`
     );
-  
- 
+
     functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage=constant.ErrorMessage.ApplicationError,
-      errorCode=constant.ErrorCode.ApplicationError,
+      (errorMessage = constant.ErrorMessage.ApplicationError),
+      (errorCode = constant.ErrorCode.ApplicationError),
       {
-        sqlMessage:errsaveMonitorDB.sqlMessage,
-        stack:errsaveMonitorDB.stack,
+        sqlMessage: errsaveMonitorDB.sqlMessage,
+        stack: errsaveMonitorDB.stack,
       }
     );
     throw functionContext.error;
@@ -686,9 +671,9 @@ module.exports.fetchMonitorDetailsRequest = async (
     logger.logInfo(
       `fetchMonitorDetailsRequest() :: Returned Result :: ${JSON.stringify(
         rows[0]
-      )}` 
+      )}`
     );
-    var result = rows[0] ? rows[0]: null;
+    var result = rows[0] ? rows[0] : null;
     return result;
   } catch (errFetchMonitorDetailsDB) {
     logger.logInfo(
@@ -696,14 +681,13 @@ module.exports.fetchMonitorDetailsRequest = async (
         errFetchMonitorDetailsDB
       )}`
     );
-  
- 
+
     functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage=constant.ErrorMessage.ApplicationError,
-      errorCode=constant.ErrorCode.ApplicationError,
+      (errorMessage = constant.ErrorMessage.ApplicationError),
+      (errorCode = constant.ErrorCode.ApplicationError),
       {
-        sqlMessage:errsaveMonitorDB.sqlMessage,
-        stack:errsaveMonitorDB.stack,
+        sqlMessage: errsaveMonitorDB.sqlMessage,
+        stack: errsaveMonitorDB.stack,
       }
     );
     throw functionContext.error;

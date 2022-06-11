@@ -39,7 +39,7 @@ app.use("/api/device", deviceRoute);
 var monitorRoute = require("./routes/monitorRoutes");
 app.use("/api/monitor", monitorRoute);
 
-// Fetch Primary Setings From Database Residing in applib
+// Fetch Primary Setings From Database Residing in applibf
 async function startServerProcess(logger) {
   try {
     logger.logInfo(`StartServerProcess Invoked()`);
