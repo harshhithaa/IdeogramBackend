@@ -1103,8 +1103,8 @@ var processVideo = async (video) => {
     ffmpeg.setFfmpegPath(ffmpegPath);
 
     ffmpeg(video.path)
-      .videoCodec("libx265")
-      .withSize("70%")
+      .videoCodec("libx264")
+      .withSize("40%")
       .on("error", function (err) {
         console.log("An error occurred: " + err.message);
         reject(err);
