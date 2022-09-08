@@ -1039,6 +1039,7 @@ var processComponentListData = async (
   var details = {};
   var resolvedData = {};
   var Media = [];
+  var Schedules = [];
 
   if (resolvedResult) {
     if (requestDetails.componentType == constant.COMPONENTS.Media) {
@@ -1077,6 +1078,17 @@ var processComponentListData = async (
       };
     } else if (requestDetails.componentType == constant.COMPONENTS.Monitor) {
       resolvedData.ComponentList = resolvedResult[0];
+      resolvedData.Schedules = resolvedResult[1];
+
+      resolvedData.ComponentList.forEach((item) => {
+        Schedules = appLib.FilterArray(
+          resolvedData.Schedules,
+          item.Id,
+          "MonitorId"
+        );
+        item.Schedules = Schedules;
+      });
+
       details = {
         ...resolvedData,
       };
