@@ -690,45 +690,44 @@ var processMedia = async (functionContext, req, requestContext) => {
         logger.logInfo(
           `Media Files() invoked ${JSON.stringify(req.files[count])}`
         );
-        if (file.mimetype === "video/mp4") {
-          await processVideo(file);
-        }
+        // if (file.mimetype === "video/mp4") {
+        //   await processVideo(file);
+        // }
         if (
           file.hasOwnProperty("filename") ||
           file.hasOwnProperty("fileName")
         ) {
           if (file.filename) {
-            if (file.mimetype === "video/mp4") {
-              console.log("file path", `./uploads/${file.filename}`);
-              fs.unlink(`./uploads/${file.filename}`, () => {
-                console.log("File Removed");
-              });
-              requestContext.file.fileName = file.originalname
-                ? file.originalname
-                : file.originalname;
-              requestContext.file.fileMimetype = file.mimetype;
-              requestContext.file.srcPath =
-                fileConfiguration.LocalStorage + file.originalname;
-              requestContext.file.destPath =
-                fileConfiguration.RemoteStorage +
-                new Date().toDateString() +
-                file.originalname;
-              requestContext.file.fileUrl =
-                fileConfiguration.FileUrl +
-                new Date().toDateString() +
-                file.originalname;
-            } else {
-              requestContext.file.fileName = file.originalname
-                ? file.originalname
-                : file.originalname;
-              requestContext.file.fileMimetype = file.mimetype;
-              requestContext.file.srcPath =
-                fileConfiguration.LocalStorage + file.filename;
-              requestContext.file.destPath =
-                fileConfiguration.RemoteStorage + file.filename;
-              requestContext.file.fileUrl =
-                fileConfiguration.FileUrl + file.filename;
-            }
+            // if (file.mimetype === "video/mp4") {
+            //   console.log("file path", `./uploads/${file.filename}`);
+            //   fs.unlink(`./uploads/${file.filename}`, () => {
+            //     console.log("File Removed");
+            //   });
+            //   requestContext.file.fileName = file.originalname
+            //     ? file.originalname
+            //     : file.originalname;
+            //   requestContext.file.fileMimetype = file.mimetype;
+            //   requestContext.file.srcPath =
+            //     fileConfiguration.LocalStorage + file.originalname;
+            //   requestContext.file.destPath =
+            //     fileConfiguration.RemoteStorage +
+            //     new Date().toDateString() +
+            //     file.originalname;
+            //   requestContext.file.fileUrl =
+            //     fileConfiguration.FileUrl +
+            //     new Date().toDateString() +
+            //     file.originalname;
+            // } else {
+            requestContext.file.fileName = file.originalname
+              ? file.originalname
+              : file.originalname;
+            requestContext.file.fileMimetype = file.mimetype;
+            requestContext.file.srcPath =
+              fileConfiguration.LocalStorage + file.filename;
+            requestContext.file.destPath =
+              fileConfiguration.RemoteStorage + file.filename;
+            requestContext.file.fileUrl =
+              fileConfiguration.FileUrl + file.filename;
           }
         }
         requestContext.serverUploadDetails.push({
