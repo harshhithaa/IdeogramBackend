@@ -1,8 +1,7 @@
-
 module.exports.Settings = {
   APP_KEY: null,
   APP_SECRET: null,
-  ENVIORNMENT : process.env.ENVIORNMENT,
+  ENVIORNMENT: process.env.ENVIORNMENT,
 };
 
 module.exports.FTPSettings = {
@@ -18,13 +17,12 @@ module.exports.FileConfiguration = {
   LocalStorage: process.env.LocalStorage,
   RemoteStorage: process.env.RemoteStorage,
   FileUrl: process.env.FileUrl,
+  DO_SPACES_URL: process.env.DO_SPACES_URL,
   secure: false,
 };
 
-
-
 module.exports.MailSettings = {
-  Username : process.env.MailUsername,
-  Password : process.env.MailPassword,
-  CC : process.env.MailCC
-}
+  Username: process.env.MailUsername,
+  Password: process.env.MailPassword,
+  CC: process.env.MailCC,
+};

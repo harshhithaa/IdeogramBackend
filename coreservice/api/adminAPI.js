@@ -12,6 +12,7 @@ var ftp = require("basic-ftp");
 const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 var ffmpeg = require("fluent-ffmpeg");
 var fs = require("fs");
+const AWS = require("aws-sdk");
 
 module.exports.SaveSystemUser = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
@@ -111,10 +112,12 @@ module.exports.SaveMedia = async (req, res) => {
       req,
       requestContext
     );
+
     var saveMediaInDBResponse = await databaseHelper.saveMediaDB(
       functionContext,
       requestContext
     );
+
     saveMediaResponse(functionContext, requestContext);
   } catch (errSaveMedia) {
     if (!errSaveMedia.ErrorMessage && !errSaveMedia.ErrorCode) {
@@ -682,9 +685,11 @@ var processMedia = async (functionContext, req, requestContext) => {
   logger.logInfo(`processMedia() invoked`);
 
   var canUploadFile = true;
+
   if (canUploadFile) {
     if (req.hasOwnProperty("files")) {
       for (let count = 0; count < req.files.length; count++) {
+        const toBeUploaded = fs.readFileSync(req.files[count].path);
         var file = req.files[count];
         console.log(file);
         logger.logInfo(
@@ -698,6 +703,7 @@ var processMedia = async (functionContext, req, requestContext) => {
           file.hasOwnProperty("fileName")
         ) {
           if (file.filename) {
+            console.log(file.filename.split(" ").join("%20"));
             // if (file.mimetype === "video/mp4") {
             //   console.log("file path", `./uploads/${file.filename}`);
             //   fs.unlink(`./uploads/${file.filename}`, () => {
@@ -727,7 +733,8 @@ var processMedia = async (functionContext, req, requestContext) => {
             requestContext.file.destPath =
               fileConfiguration.RemoteStorage + file.filename;
             requestContext.file.fileUrl =
-              fileConfiguration.FileUrl + file.filename;
+              fileConfiguration.DO_SPACES_URL +
+              file.filename.split(" ").join("%20");
           }
         }
         requestContext.serverUploadDetails.push({
@@ -739,11 +746,23 @@ var processMedia = async (functionContext, req, requestContext) => {
           fileMimetype: file.mimetype.split("/")[0],
           fileUrl: requestContext.file.fileUrl,
         });
+
+        var fileUrl = await fileUpload(
+          functionContext,
+          requestContext.serverUploadDetails,
+          toBeUploaded
+        );
+
+        console.log(fileUrl);
+
+        requestContext.file.fileUrl = fileUrl;
+
+        // filesUrls.push(fileUrl);
       }
-      var uploadFile = await fileUpload(
-        functionContext,
-        requestContext.serverUploadDetails
-      );
+      // var uploadFile = await fileUpload(
+      //   functionContext,
+      //   requestContext.serverUploadDetails
+      // );
     }
   }
 
@@ -772,21 +791,38 @@ var saveMediaResponse = async (functionContext, resolvedResult) => {
   logger.logInfo(`saveMediaResponse completed`);
 };
 
-async function fileUpload(functionContext, fileDetails) {
+async function fileUpload(functionContext, fileDetails, file) {
   var logger = functionContext.logger;
 
   logger.logInfo(`fileUpload() Invoked()`);
 
-  const client = new ftp.Client();
-  client.ftp.verbose = true;
+  const spacesEndpoint = new AWS.Endpoint(process.env.DO_SPACES_ENDPOINT);
+
+  const s3 = new AWS.S3({
+    endpoint: spacesEndpoint,
+    accessKeyId: process.env.DO_SPACES_KEY,
+    secretAccessKey: process.env.DO_SPACES_SECRET,
+  });
+
+  // const client = new ftp.Client();
+  // client.ftp.verbose = true;
+  // await client.access(FTPSettings);
+
+  // const element = fileDetails[file];
+
+  const params = {
+    Bucket: process.env.DO_SPACES_NAME,
+    Key: `ideogram/${fileDetails[0].srcPath.split("/")[1]}`,
+    Body: file,
+    ACL: "public-read",
+  };
+
   try {
-    await client.access(FTPSettings);
-    for (let file = 0; file < fileDetails.length; file++) {
-      const element = fileDetails[file];
-      await client.uploadFrom(element.srcPath, element.destPath);
-    }
-  } catch (errFileUpload) {
-    logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(errFileUpload)}`);
+    const stored = await s3.upload(params).promise();
+    console.log(stored);
+    return stored.Location;
+  } catch (err) {
+    logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(err)}`);
     functionContext.error = new coreRequestModel.ErrorModel(
       constant.ErrorMessage.ApplicationError,
 
@@ -794,9 +830,45 @@ async function fileUpload(functionContext, fileDetails) {
     );
     throw functionContext.error;
   }
-  client.close();
 
-  return;
+  // s3.upload(
+  //   {
+  //     Bucket: process.env.DO_SPACES_NAME,
+  //     Key: `ideogram/${fileDetails[0].srcPath.split("/")[1]}`,
+  //     Body: file,
+  //     ACL: "public-read",
+  //   },
+  //   (err, data) => {
+  //     return new Promise((resolve, reject) => {
+  //       if (err) {
+  //         logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(err)}`);
+  //         functionContext.error = new coreRequestModel.ErrorModel(
+  //           constant.ErrorMessage.ApplicationError,
+
+  //           constant.ErrorCode.ApplicationError
+  //         );
+  //         reject(err);
+  //       } else {
+  //         resolve(data.Location);
+  //       }
+  //     });
+  // if (err) {
+  //   logger.logInfo(`fileUpload() :: Error :: ${JSON.stringify(err)}`);
+  //   functionContext.error = new coreRequestModel.ErrorModel(
+  //     constant.ErrorMessage.ApplicationError,
+
+  //     constant.ErrorCode.ApplicationError
+  //   );
+  //   throw functionContext.error;
+  // } else {
+  //   console.log("Your file has been uploaded successfully!", data);
+  //   return new Promise((resolve, reject) => {
+  //     resolve(data.Location);
+  //   });
+  // }
+
+  // await client.uploadFrom(element.srcPath, element.destPath);
+  // client.close();
 }
 
 var getAdminComponentsResponse = async (functionContext, resolvedResult) => {

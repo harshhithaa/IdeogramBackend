@@ -6,8 +6,8 @@ var constant = require("../common/constant");
 var momentTimezone = require("moment-timezone");
 var databaseHelper = require("../helper/databasehelper");
 var fileConfiguration = require("../common/settings").FileConfiguration;
-const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
-var ffmpeg = require('fluent-ffmpeg')
+const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
+var ffmpeg = require("fluent-ffmpeg");
 
 exports.getValue = function (requestArray, key) {
   var requestArrayLength = requestArray ? requestArray.length : 0;
@@ -24,20 +24,18 @@ exports.getValue = function (requestArray, key) {
   return null;
 };
 
-
 exports.getFileUploadConfig = multer({
   storage: multer.diskStorage({
     destination: fileConfiguration.LocalStorage,
     filename: async function (req, file, cb) {
-      cb(null,new Date().toDateString()+file.originalname);
+      cb(null, new Date().toDateString() + file.originalname);
     },
   }),
   fileFilter: (req, file, cb) => {
-   
     if (
       file.mimetype === "image/png" ||
       file.mimetype === "image/jpeg" ||
-      file.mimetype === "image/bmp"||
+      file.mimetype === "image/bmp" ||
       file.mimetype === "video/mp4"
     ) {
       cb(null, true);
