@@ -191,3 +191,18 @@ module.exports.monitorLoginRequest = (requestParams) => {
   });
   return joiSchema.validate(requestParams);
 };
+
+module.exports.updateAllMonitorsRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    monitorList: joi.array(),
+    playlistRef: joi.string(),
+  });
+  return joiSchema.validate(requestParams);
+};
+
+module.exports.fetchMediaRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    mediaRef: joi.string(),
+  });
+  return joiSchema.validate(requestParams);
+};

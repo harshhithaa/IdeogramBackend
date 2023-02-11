@@ -13,6 +13,7 @@ const ffmpegPath = require("@ffmpeg-installer/ffmpeg").path;
 var ffmpeg = require("fluent-ffmpeg");
 var fs = require("fs");
 const AWS = require("aws-sdk");
+const { getVideoDurationInSeconds } = require("get-video-duration");
 
 module.exports.SaveSystemUser = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
@@ -638,6 +639,72 @@ module.exports.DeleteAdminComponents = async (req, res) => {
   }
 };
 
+module.exports.UpdateAllMonitors = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`UpdateAllMonitors()`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.UPDATEALLMONITORS,
+    null,
+    res,
+    logger
+  );
+
+  var updateAllMonitorsRequest = new coreRequestModel.UpdateAllMonitorsRequest(
+    req
+  );
+
+  logger.logInfo(
+    `UpdateAllMonitors() :: Request Object : ${updateAllMonitorsRequest}`
+  );
+
+  var validateRequest = joiValidationModel.updateAllMonitorsRequest(
+    updateAllMonitorsRequest
+  );
+
+  if (validateRequest.error) {
+    functionContext.error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.Invalid_Request,
+      constant.ErrorCode.Invalid_Request,
+      validateRequest.error.details
+    );
+    logger.logInfo(
+      `DeleteAdminComponents() Error:: Invalid Request :: ${JSON.stringify(
+        updateAllMonitorsRequest
+      )}`
+    );
+    updateAllMonitorsResponse(functionContext, null);
+    return;
+  }
+
+  try {
+    var updateAllMonitorsResult = await databaseHelper.updateAllMonitorInDB(
+      functionContext,
+      updateAllMonitorsRequest
+    );
+
+    await updateAllMonitorsResponse(functionContext, updateAllMonitorsResult);
+  } catch (errUpdateAllMonitors) {
+    if (!errUpdateAllMonitors.ErrorMessage && !errUpdateAllMonitors.ErrorCode) {
+      logger.logInfo(
+        `errUpdateAllMonitorsResponse() :: Error :: ${errUpdateAllMonitors}`
+      );
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError,
+        JSON.stringify(errUpdateAllMonitors)
+      );
+    }
+    logger.logInfo(
+      `DeleteAdminComponents() :: Error :: ${JSON.stringify(
+        errUpdateAllMonitors
+      )}`
+    );
+    updateAllMonitorsResponse(functionContext, null);
+  }
+};
+
 var saveSystemUserResponse = (functionContext, resolvedResult) => {
   var logger = functionContext.logger;
 
@@ -691,7 +758,13 @@ var processMedia = async (functionContext, req, requestContext) => {
       for (let count = 0; count < req.files.length; count++) {
         const toBeUploaded = fs.readFileSync(req.files[count].path);
         var file = req.files[count];
-        console.log(file);
+        const stream = fs.createReadStream(req.files[count].path);
+
+        let duration = 0;
+        if (file.mimetype === "video/mp4") {
+          duration = await getVideoDurationInSeconds(stream);
+        }
+        // console.log(duration);
         logger.logInfo(
           `Media Files() invoked ${JSON.stringify(req.files[count])}`
         );
@@ -745,6 +818,7 @@ var processMedia = async (functionContext, req, requestContext) => {
           fileName: requestContext.file.fileName,
           fileMimetype: file.mimetype.split("/")[0],
           fileUrl: requestContext.file.fileUrl,
+          fileDuration: duration,
         });
 
         var fileUrl = await fileUpload(
@@ -1097,6 +1171,32 @@ var getAdminComponentsDetailsResponse = async (
     )}`
   );
   logger.logInfo(`getAdminComponentsDetailsResponse completed`);
+};
+
+var updateAllMonitorsResponse = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`updateAllMonitorsResponse() invoked`);
+
+  var updateAllMonitorsResponse =
+    new coreRequestModel.UpdateAllMonitorsResponse();
+
+  updateAllMonitorsResponse.RequestID = functionContext.requestID;
+  if (functionContext.error) {
+    updateAllMonitorsResponse.Error = functionContext.error;
+    updateAllMonitorsResponse.Details = null;
+  } else {
+    updateAllMonitorsResponse.Error = null;
+    updateAllMonitorsResponse.Details = "Monitors Updated Successfully";
+  }
+  appLib.SendHttpResponse(functionContext, updateAllMonitorsResponse);
+
+  logger.logInfo(
+    `updateAllMonitorsResponse  Response :: ${JSON.stringify(
+      updateAllMonitorsResponse
+    )}`
+  );
+  logger.logInfo(`updateAllMonitorsResponse completed`);
 };
 
 var processComponentListData = async (

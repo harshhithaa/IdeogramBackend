@@ -305,6 +305,31 @@ class monitorLoginResponse {
   }
 }
 
+class updateAllMonitorsRequest {
+  constructor(req) {
+    this.monitorList = req.body.MonitorList ? req.body.MonitorList : null;
+    this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
+  }
+}
+
+class updateAllMonitorsResponse {
+  constructor() {
+    (this.Error = null), (this.Details = null), (this.RequestID = null);
+  }
+}
+
+class fetchMediaRequest {
+  constructor(req) {
+    this.mediaRef = req.query.MediaRef ? req.query.MediaRef : null;
+  }
+}
+
+class fetchMediaResponse {
+  constructor() {
+    (this.Error = null), (this.Details = null), (this.RequestID = null);
+  }
+}
+
 module.exports.ErrorModel = errorModel;
 module.exports.AdminLoginRequest = adminLoginRequest;
 module.exports.AdminLoginResponse = adminLoginResponse;
@@ -341,3 +366,7 @@ module.exports.MonitorDetailsRequest = monitorDetailsRequest;
 module.exports.MonitorDetailsResponse = monitorDetailsResponse;
 module.exports.MonitorLoginRequest = monitorLoginRequest;
 module.exports.MonitorLoginResponse = monitorLoginResponse;
+module.exports.UpdateAllMonitorsRequest = updateAllMonitorsRequest;
+module.exports.UpdateAllMonitorsResponse = updateAllMonitorsResponse;
+module.exports.FetchMediaRequest = fetchMediaRequest;
+module.exports.FetchMediaResponse = fetchMediaResponse;

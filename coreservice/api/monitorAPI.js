@@ -69,37 +69,6 @@ module.exports.MonitorLogin = async (req, res) => {
   }
 };
 
-module.exports.AdminLogout = async (req, res) => {
-  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
-
-  logger.logInfo(`AdminLogout invoked()!!`);
-
-  var functionContext = new coreRequestModel.FunctionContext(
-    requestType.ADMINLOGOUT,
-    null,
-    res,
-    logger
-  );
-
-  try {
-    let userLogoutInDBResult = await databaseHelper.adminLogoutInDB(
-      functionContext,
-      null
-    );
-    adminLogoutResponse(functionContext, userLogoutInDBResult);
-  } catch (errUserLogout) {
-    if (!errUserLogout.ErrorMessage && !errUserLogout.ErrorCode) {
-      logger.logInfo(`userLogout() :: Error :: ${errUserLogout}`);
-      functionContext.error = new coreRequestModel.ErrorModel(
-        constant.ErrorMessage.ApplicationError,
-        constant.ErrorCode.ApplicationError
-      );
-    }
-    logger.logInfo(`userLogout() :: Error :: ${JSON.stringify(errUserLogout)}`);
-    adminLogoutResponse(functionContext, null);
-  }
-};
-
 module.exports.FetchMonitorDetails = async (req, res) => {
   var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
 
@@ -189,85 +158,86 @@ module.exports.FetchMonitorDetails = async (req, res) => {
   }
 };
 
-var saveAdminLoginResponse = (
-  functionContext,
-  resolvedResult,
-  adminDetails
-) => {
-  var logger = functionContext.logger;
+module.exports.FetchMedia = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
 
-  logger.logInfo(`saveadminLoginResponse() invoked`);
+  logger.logInfo(`FetchMedia invoked()!!`);
 
-  var adminLoginResponse = new coreRequestModel.AdminLoginResponse();
-
-  adminLoginResponse.RequestID = functionContext.requestID;
-  if (functionContext.error) {
-    adminLoginResponse.Error = functionContext.error;
-    adminLoginResponse.Details = null;
-  } else {
-    adminLoginResponse.Error = null;
-
-    adminLoginResponse.Details.AuthToken = resolvedResult.AuthToken;
-    adminLoginResponse.Details.UserRef = resolvedResult.UserReference;
-    adminLoginResponse.Details.UserType = resolvedResult.UserType;
-  }
-  appLib.SendHttpResponse(functionContext, adminLoginResponse);
-  logger.logInfo(
-    `saveadminLoginResponse  Response :: ${JSON.stringify(adminLoginResponse)}`
-  );
-  logger.logInfo(`saveadminLoginResponse completed`);
-};
-
-var adminLogoutResponse = (functionContext, resolvedResult) => {
-  var logger = functionContext.logger;
-
-  logger.logInfo(`adminLogoutResponse() invoked`);
-
-  var adminLogoutResponseModel = new coreRequestModel.AdminLogoutResponse();
-
-  adminLogoutResponseModel.RequestID = functionContext.requestID;
-  if (functionContext.error) {
-    adminLogoutResponseModel.Error = functionContext.error;
-    adminLogoutResponseModel.Details = null;
-  } else {
-    adminLogoutResponseModel.Error = null;
-    adminLogoutResponseModel.Details.UserRef = functionContext.userRef;
-  }
-  appLib.SendHttpResponse(functionContext, adminLogoutResponseModel);
-  logger.logInfo(
-    `adminLogoutResponse  Response :: ${JSON.stringify(
-      adminLogoutResponseModel
-    )}`
-  );
-  logger.logInfo(`adminLogoutResponse completed`);
-};
-
-var passwordAuthentication = async (
-  functionContext,
-  requestContext,
-  resolvedResult
-) => {
-  var logger = functionContext.logger;
-
-  logger.logInfo(`passwordAuthentication() invoked`);
-
-  const result = bcrypt.compareSync(
-    `${requestContext.password}`,
-    resolvedResult.Password
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.FETCHMEDIA,
+    null,
+    res,
+    logger
   );
 
-  if (result) {
-    return;
-  } else {
-    logger.logInfo(`passwordAuthentication() :: Authentication Failed`);
+  var fetchMediaRequest = new coreRequestModel.FetchMediaRequest(req);
+  logger.logInfo(`MonitorLogin() :: Request Object : ${fetchMediaRequest}`);
 
+  var validateRequest = joiValidationModel.fetchMediaRequest(fetchMediaRequest);
+
+  if (validateRequest.error) {
     functionContext.error = new coreRequestModel.ErrorModel(
-      constant.ErrorMessage.Invalid_User_Name_Or_Password,
-      constant.ErrorCode.Invalid_User_Name_Or_Password
+      constant.ErrorMessage.Invalid_Request,
+      constant.ErrorCode.Invalid_Request,
+      validateRequest.error.details
+    );
+    logger.logInfo(
+      `MonitorLogin() Error:: Invalid Request :: ${JSON.stringify(
+        fetchMediaRequest
+      )}`
+    );
+    fetchMediaResponse(functionContext, null);
+    return;
+  }
+
+  try {
+    let fetchMediaFromDb = await databaseHelper.fetchMediaFromDB(
+      functionContext,
+      fetchMediaRequest
     );
 
-    throw functionContext.error;
+    fetchMediaResponse(functionContext, fetchMediaFromDb);
+  } catch (errFetchMedia) {
+    if (!errFetchMedia.ErrorMessage && !errFetchMedia.ErrorCode) {
+      logger.logInfo(
+        `fetchMonitorDetailsResponse() :: Error :: ${errFetchMedia}`
+      );
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ApplicationError,
+        constant.ErrorCode.ApplicationError
+      );
+    }
+    logger.logInfo(
+      `fetchMonitorDetailsResponse() :: Error :: ${JSON.stringify(
+        errFetchMedia
+      )}`
+    );
+    fetchMediaResponse(functionContext, null, null);
   }
+};
+
+var fetchMediaResponse = (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+
+  logger.logInfo(`fetchMediaResponse() invoked`);
+
+  var fetchMediaResponse = new coreRequestModel.FetchMediaResponse();
+
+  fetchMediaResponse.RequestID = functionContext.requestID;
+
+  if (functionContext.error) {
+    fetchMediaResponse.Error = functionContext.error;
+    fetchMediaResponse.Details = null;
+  } else {
+    fetchMediaResponse.Error = null;
+    fetchMediaResponse.Details = resolvedResult;
+  }
+
+  appLib.SendHttpResponse(functionContext, fetchMediaResponse);
+
+  logger.logInfo(`fetchMediaResponse :: ${JSON.stringify(fetchMediaResponse)}`);
+
+  logger.logInfo(`fetchMediaResponse completed`);
 };
 
 var saveMonitorLoginResponse = (functionContext, resolvedResult) => {

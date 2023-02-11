@@ -736,3 +736,82 @@ module.exports.monitorLoginDB = async (functionContext, resolvedResult) => {
     throw functionContext.error;
   }
 };
+
+module.exports.updateAllMonitorInDB = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("updateAllMonitorInDB() Invoked!");
+  try {
+    let rows = await databaseModule.knex.raw(
+      `CALL usp_update_all_monitors('${JSON.stringify(
+        resolvedResult.monitorList
+      )}','${resolvedResult.playlistRef}')`
+    );
+    logger.logInfo(
+      `updateAllMonitorInDB() :: Returned Result :: ${JSON.stringify(rows[0])}`
+    );
+    var result = rows[0][0] ? rows[0][0] : null;
+    return result;
+  } catch (errUpdateAllMonitors) {
+    logger.logInfo(
+      `errUpdateAllMonitors() :: Error :: ${JSON.stringify(
+        errUpdateAllMonitors
+      )}`
+    );
+    var errorCode = null;
+    var errorMessage = null;
+    if (
+      errMonitorLoginDB.sqlState &&
+      errMonitorLoginDB.sqlState == constant.ErrorCode.Invalid_User
+    ) {
+      errorCode = constant.ErrorCode.Invalid_User;
+      errorMessage = constant.ErrorMessage.Invalid_User;
+    } else if (
+      errMonitorLoginDB.sqlState &&
+      errMonitorLoginDB.sqlState ==
+        constant.ErrorCode.Invalid_User_Name_Or_Password
+    ) {
+      errorCode = constant.ErrorCode.Invalid_User_Name_Or_Password;
+      errorMessage = constant.ErrorMessage.Invalid_User_Name_Or_Password;
+    } else {
+      errorCode = constant.ErrorCode.ApplicationError;
+      errorMessage = constant.ErrorMessage.ApplicationError;
+    }
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage,
+      errorCode
+    );
+    throw functionContext.error;
+  }
+};
+
+module.exports.fetchMediaFromDB = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+  logger.logInfo("fetchMediaFromDB() Invoked!");
+  try {
+    let rows = await databaseModule.knex.raw(
+      `CALL usp_fetch_media('${resolvedResult.mediaRef}')`
+    );
+    logger.logInfo(
+      `fetchMediaFromDB() :: Returned Result :: ${JSON.stringify(rows[0])}`
+    );
+    var result = rows[0][0][0] ? rows[0][0][0] : null;
+    return result;
+  } catch (errFetchMediaFromDB) {
+    logger.logInfo(
+      `errFetchMediaFromDB() :: Error :: ${JSON.stringify(errFetchMediaFromDB)}`
+    );
+
+    functionContext.error = new coreRequestModel.ErrorModel(
+      (errorMessage = constant.ErrorMessage.ApplicationError),
+      (errorCode = constant.ErrorCode.ApplicationError),
+      {
+        sqlMessage: errsaveMonitorDB.sqlMessage,
+        stack: errsaveMonitorDB.stack,
+      }
+    );
+    throw functionContext.error;
+  }
+};

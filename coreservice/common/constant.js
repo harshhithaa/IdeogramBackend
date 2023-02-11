@@ -2,15 +2,14 @@ module.exports.ErrorCode = {
   ApplicationError: 500,
   Invalid_Request: 501,
   Invalid_Request_Url: 10001,
-  Invalid_User_Credentials: 10002,  
+  Invalid_User_Credentials: 10002,
   Invalid_Request_Url: 10003,
-  Invalid_User:10004,
+  Invalid_User: 10004,
   Invalid_User_Name_Or_Password: 10005,
-  Invalid_Authentication:10006,
-  Invalid_Playlist_Ref:10007,
-  Invalid_Schedule_Ref:10008,
-  Invalid_Monitor_Ref:10009,
- 
+  Invalid_Authentication: 10006,
+  Invalid_Playlist_Ref: 10007,
+  Invalid_Schedule_Ref: 10008,
+  Invalid_Monitor_Ref: 10009,
 };
 
 module.exports.ErrorMessage = {
@@ -28,21 +27,23 @@ module.exports.ErrorMessage = {
 };
 
 module.exports.RequestType = {
-  ADMINLOGOUT:"AL",
+  ADMINLOGOUT: "AL",
   GETCUSTOMERDETAILS: "GCD",
   ISCUSTOMERPRESENT: "ICP",
   SAVESYSTEMUSER: "SSR",
-  SAVEMEDIA:"SM",
-  SAVEPLAYLIST:"SP",
-  GETADMINCOMPONENTS:"GAC",
-  GETADMINCOMPONENTSDETAILS:"GAC",
-  SAVESCHEDULE:"SS",
-  SAVEMONITOR:"SM",
-  DELETEADMINCOMPONENTS:"DAC",
-  VALIDATEDELETEADMINCOMPONENTS:"VDAC",
-  MONITORLOGIN:"ML",
-  FETCHMONITORDETAILS:"FMD",
-};  
+  SAVEMEDIA: "SM",
+  SAVEPLAYLIST: "SP",
+  GETADMINCOMPONENTS: "GAC",
+  GETADMINCOMPONENTSDETAILS: "GAC",
+  SAVESCHEDULE: "SS",
+  SAVEMONITOR: "SM",
+  DELETEADMINCOMPONENTS: "DAC",
+  VALIDATEDELETEADMINCOMPONENTS: "VDAC",
+  MONITORLOGIN: "ML",
+  FETCHMONITORDETAILS: "FMD",
+  UPDATEALLMONITORS: "UAM",
+  FETCHMEDIA: "FM",
+};
 
 module.exports.CustomerVerificationStatus = {
   PENDING: 1,
