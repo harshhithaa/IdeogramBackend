@@ -823,7 +823,7 @@ var processMedia = async (functionContext, req, requestContext) => {
 
         var fileUrl = await fileUpload(
           functionContext,
-          requestContext.serverUploadDetails,
+          requestContext.file.srcPath,
           toBeUploaded
         );
 
@@ -865,7 +865,7 @@ var saveMediaResponse = async (functionContext, resolvedResult) => {
   logger.logInfo(`saveMediaResponse completed`);
 };
 
-async function fileUpload(functionContext, fileDetails, file) {
+async function fileUpload(functionContext, filePath, file) {
   var logger = functionContext.logger;
 
   logger.logInfo(`fileUpload() Invoked()`);
@@ -886,7 +886,7 @@ async function fileUpload(functionContext, fileDetails, file) {
 
   const params = {
     Bucket: process.env.DO_SPACES_NAME,
-    Key: `ideogram/${fileDetails[0].srcPath.split("/")[1]}`,
+    Key: `ideogram/${filePath.split("/")[1]}`,
     Body: file,
     ACL: "public-read",
   };
