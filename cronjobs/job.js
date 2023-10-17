@@ -40,7 +40,7 @@ var momentTimezone = require("moment-timezone");
 
 // const JSZip = require("jszip");
 
-cron.schedule("* * * * *", () => {
+cron.schedule("0 * */10 * *", () => {
   deleteLogs(logger);
 });
 
