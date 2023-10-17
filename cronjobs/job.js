@@ -64,18 +64,18 @@ const deleteLogs = () => {
 
     logger.logInfo(`Inside Test folder ${testFolder}`);
 
-    // const logFiles = testFiles.split(",");
+    const logFiles = testFiles.split(",");
 
-    // for (var i = 0; i < logFiles.length; i++) {
-    //   directoryLength = fs.readdirSync(testFolder).length;
-    //   if (i == 0) {
-    //     // directoryLength>0?zip.file(`${logFiles[i].split('/')[3]}`,fs.readFileSync(logFiles[i])):null
-    //     directoryLength > 0 ? removeAFile(logFiles[i]) : null;
-    //   } else {
-    //     // directoryLength>1?zip.file(`${logFiles[i]}`,fs.readFileSync(testFolder+logFiles[i])):null
-    //     directoryLength > 1 ? removeAFile(testFolder + logFiles[i]) : null;
-    //   }
-    // }
+    for (var i = 0; i < logFiles.length; i++) {
+      directoryLength = fs.readdirSync(testFolder).length;
+      if (i == 0) {
+        // directoryLength>0?zip.file(`${logFiles[i].split('/')[3]}`,fs.readFileSync(logFiles[i])):null
+        directoryLength > 0 ? removeAFile(logFiles[i]) : null;
+      } else {
+        // directoryLength>1?zip.file(`${logFiles[i]}`,fs.readFileSync(testFolder+logFiles[i])):null
+        directoryLength > 1 ? removeAFile(testFolder + logFiles[i]) : null;
+      }
+    }
 
     // zip
     //   .generateNodeStream({ type: "nodebuffer", streamFiles: true })
@@ -93,6 +93,6 @@ const deleteLogs = () => {
 var removeAFile = (path) => {
   unlink(path, (err) => {
     if (err) throw err;
-    console.log(`${path} was removed`);
+    logger.logInfo(`${path} was removed`);
   });
 };
