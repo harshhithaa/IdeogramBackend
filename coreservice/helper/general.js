@@ -36,6 +36,7 @@ exports.getFileUploadConfig = multer({
       file.mimetype === "image/png" ||
       file.mimetype === "image/jpeg" ||
       file.mimetype === "image/bmp" ||
+      file.mimetype === "image/gif" ||
       file.mimetype === "video/mp4"
     ) {
       cb(null, true);
