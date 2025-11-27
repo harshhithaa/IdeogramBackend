@@ -179,6 +179,36 @@ module.exports.SavePlaylist = async (req, res) => {
     userRef: functionContext.userRef,
   };
 
+  // NORMALIZE playlist items: ensure MediaRef, IsActive and Duration exist and are typed correctly.
+  if (requestContext.playlist && Array.isArray(requestContext.playlist)) {
+    requestContext.playlist = requestContext.playlist.map((item) => {
+      const mediaRef = item.MediaRef || item.mediaRef || null;
+      const isActive =
+        typeof item.IsActive !== "undefined"
+          ? item.IsActive
+          : typeof item.isActive !== "undefined"
+          ? item.isActive
+          : 1;
+      // accept Duration or duration keys; fallback to 10
+      const durationRaw =
+        typeof item.Duration !== "undefined"
+          ? item.Duration
+          : typeof item.duration !== "undefined"
+          ? item.duration
+          : null;
+      let duration = 10;
+      if (durationRaw !== null && durationRaw !== undefined && durationRaw !== "") {
+        const n = Number(durationRaw);
+        if (!isNaN(n) && n > 0) duration = Math.floor(n);
+      }
+      return {
+        MediaRef: mediaRef,
+        IsActive: Number(isActive),
+        Duration: duration,
+      };
+    });
+  }
+
   try {
     var savePlaylistInDBResponse = await databaseHelper.savePlaylistDB(
       functionContext,

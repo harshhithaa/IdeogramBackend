@@ -196,11 +196,19 @@ class saveMonitorResponse {
 
 class savePlaylistRequest {
   constructor(req) {
-    this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
-    this.playlistName = req.body.PlaylistName ? req.body.PlaylistName : null;
-    this.description = req.body.Description ? req.body.Description : null;
-    this.playlist = req.body.Playlist ? req.body.Playlist : null;
-    this.isActive = req.body.IsActive ? req.body.IsActive : null;
+    // accept either PascalCase or lowercase keys (backwards compatible)
+    this.playlistRef =
+      (req.body && (req.body.PlaylistRef || req.body.playlistRef)) || null;
+    this.playlistName =
+      (req.body && (req.body.PlaylistName || req.body.playlistName)) || null;
+    this.description =
+      (req.body && (req.body.Description || req.body.description)) || null;
+    this.playlist =
+      (req.body && (req.body.Playlist || req.body.playlist)) || null;
+    this.isActive =
+      (typeof (req.body && (req.body.IsActive || req.body.isActive)) !== "undefined"
+        ? (req.body.IsActive || req.body.isActive)
+        : null);
     this.currentTs = momentTimezone
       .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
       .tz("Asia/Kolkata")
@@ -220,16 +228,67 @@ class savePlaylistResponse {
 
 class saveScheduleRequest {
   constructor(req) {
-    this.scheduleRef = req.body.ScheduleRef ? req.body.ScheduleRef : null;
-    this.scheduleTitle = req.body.ScheduleTitle ? req.body.ScheduleTitle : null;
-    this.description = req.body.Description ? req.body.Description : null;
-    this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
-    this.monitorRef = req.body.MonitorRef ? req.body.MonitorRef : null;
-    this.schedule = req.body.Schedule ? req.body.Schedule : null;
-    this.fixedTimePlayback = req.body.FixedTimePlayback
-      ? req.body.FixedTimePlayback
-      : 0;
-    this.isActive = req.body.IsActive ? req.body.IsActive : null;
+    // accept both PascalCase and lowercase; normalize types
+    const body = req.body || {};
+
+    this.scheduleRef =
+      (body.ScheduleRef || body.scheduleRef) !== undefined
+        ? (body.ScheduleRef || body.scheduleRef)
+        : null;
+
+    this.scheduleTitle =
+      (body.ScheduleTitle || body.scheduleTitle) || null;
+
+    this.description =
+      (body.Description || body.description) || null;
+
+    // playlistRef is required by Joi (but allowed null) — ensure key exists (null if absent)
+    this.playlistRef =
+      (typeof (body.PlaylistRef || body.playlistRef) !== "undefined"
+        ? (body.PlaylistRef || body.playlistRef)
+        : null);
+
+    this.monitorRef =
+      (body.MonitorRef || body.monitorRef) || null;
+
+    // normalize schedule object (accept Schedule or schedule and accept either casing for inner keys)
+    const schedRaw = body.Schedule || body.schedule || null;
+    if (schedRaw) {
+      this.schedule = {
+        StartTime: schedRaw.StartTime || schedRaw.startTime || null,
+        EndTime: schedRaw.EndTime || schedRaw.endTime || null,
+        StartDate: schedRaw.StartDate || schedRaw.startDate || null,
+        EndDate: schedRaw.EndDate || schedRaw.endDate || null,
+        Days: Array.isArray(schedRaw.Days)
+          ? schedRaw.Days
+          : Array.isArray(schedRaw.days)
+          ? schedRaw.days
+          : [],
+      };
+    } else {
+      this.schedule = null;
+    }
+
+    // fixedTimePlayback: accept boolean/string/number, normalize to 0|1 (required)
+    const ftpRaw =
+      typeof body.FixedTimePlayback !== "undefined"
+        ? body.FixedTimePlayback
+        : body.fixedTimePlayback;
+    if (typeof ftpRaw === "boolean") this.fixedTimePlayback = ftpRaw ? 1 : 0;
+    else if (typeof ftpRaw === "number") this.fixedTimePlayback = Number(ftpRaw) ? 1 : 0;
+    else if (typeof ftpRaw === "string")
+      this.fixedTimePlayback = ftpRaw.toLowerCase() === "true" || ftpRaw === "yes" ? 1 : 0;
+    else this.fixedTimePlayback = 0;
+
+    const isActiveRaw =
+      typeof body.IsActive !== "undefined"
+        ? body.IsActive
+        : body.isActive;
+    this.isActive =
+      typeof isActiveRaw !== "undefined" && isActiveRaw !== null
+        ? (typeof isActiveRaw === "boolean" ? (isActiveRaw ? 1 : 0) : Number(isActiveRaw))
+        : null;
+
     this.currentTs = momentTimezone
       .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
       .tz("Asia/Kolkata")
@@ -329,6 +388,43 @@ class fetchMediaResponse {
     (this.Error = null), (this.Details = null), (this.RequestID = null);
   }
 }
+
+class updateMonitorStatusRequest {
+  constructor(req) {
+    this.monitorRef = req.body.MonitorRef ? req.body.MonitorRef : null;
+    this.playlistRef = req.body.PlaylistRef ? req.body.PlaylistRef : null;
+    this.isPlaylistRunning = (typeof req.body.IsPlaylistRunning !== 'undefined') ? req.body.IsPlaylistRunning : null;
+    this.errorMessage = req.body.ErrorMessage ? req.body.ErrorMessage : null;
+  }
+}
+
+class updateMonitorStatusResponse {
+  constructor() {
+    this.Error = null;
+    this.Details = null;
+    this.RequestID = null;
+  }
+}
+
+class fetchAdminMonitorsStatusRequest {
+  constructor(req) {
+    this.adminRef = req.query.AdminRef ? req.query.AdminRef : (req.body && req.body.AdminRef ? req.body.AdminRef : null);
+  }
+}
+
+class fetchAdminMonitorsStatusResponse {
+  constructor() {
+    this.Error = null;
+    this.Details = null;
+    this.RequestID = null;
+  }
+}
+
+// export
+module.exports.UpdateMonitorStatusRequest = updateMonitorStatusRequest;
+module.exports.UpdateMonitorStatusResponse = updateMonitorStatusResponse;
+module.exports.FetchAdminMonitorsStatusRequest = fetchAdminMonitorsStatusRequest;
+module.exports.FetchAdminMonitorsStatusResponse = fetchAdminMonitorsStatusResponse;
 
 module.exports.ErrorModel = errorModel;
 module.exports.AdminLoginRequest = adminLoginRequest;

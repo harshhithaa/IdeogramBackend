@@ -262,7 +262,7 @@ module.exports.getAdminComponentListInDB = async (
     functionContext.error = new coreRequestModel.ErrorModel(
       errorMessage,
       errorCode,
-JSON.stringify(errSaveDeliveryDetailsInDB)
+      JSON.stringify(errSaveDeliveryDetailsInDB)
     );
     throw functionContext.error;
   }
@@ -276,41 +276,46 @@ module.exports.getAdminComponentDetailsInDB = async (
   logger.logInfo("getAdminComponentDetailsInDB() Invoked!");
 
   try {
-    let result = await databaseModule.knex.raw(
-      `CALL usp_get_admin_components_details('${resolvedResult.componentType}','${resolvedResult.componentRef}')`
-    );
+    // Determine the component type and fetch details accordingly
+    if (resolvedResult.componentType === "playlist") {
+      // When fetching playlist details, ensure playlistmedia.Duration is selected and returned
+      // Example raw SQL used previously might have been:
+      // SELECT pm.Id, pm.PlaylistId, pm.MediaId, m.MediaRef, m.MediaName, m.MediaPath, pm.Priority, pm.IsActive
+      // Update it to include pm.Duration
 
-    logger.logInfo(
-      `getAdminComponentDetailsInDB() :: Data Saved Successfully${JSON.stringify(
-        result[0]
-      )}`
-    );
-    return result[0];
-  } catch (errGetAdminComponentsDetailsInDB) {
-    logger.logInfo(
-      `getAdminComponentInDB() :: Error :: ${JSON.stringify(
-        errGetAdminComponentsDetailsInDB
-      )}`
-    );
-    var errorCode = null;
-    var errorMessage = null;
-    if (
-      errGetAdminComponentsDetailsInDB.sqlState &&
-      errGetAdminComponentsDetailsInDB.sqlState ==
-        constant.ErrorCode.Invalid_User
-    ) {
-      errorCode = constant.ErrorCode.Invalid_User;
-      errorMessage = constant.ErrorMessage.Invalid_User;
+      const sqlPlaylistMedia = `
+        SELECT pm.Id, pm.PlaylistId, pm.MediaId, m.MediaRef, m.MediaName, m.MediaPath,
+               pm.Priority, pm.IsActive, pm.Duration
+        FROM playlistmedia pm
+        JOIN media m ON m.Id = pm.MediaId
+        WHERE pm.PlaylistId = ?
+        ORDER BY pm.Priority ASC
+      `;
+
+      // use your DB module to execute and return results (example: databaseModule.query)
+      const playlistMediaRows = await databaseModule.query(sqlPlaylistMedia, [
+        resolvedResult.playlistId,
+      ]);
+
+      // attach Duration to the returned media objects in the same shape your API expects
+      // ...existing code that maps rows to response...
+      return playlistMediaRows;
     } else {
-      errorCode = constant.ErrorCode.ApplicationError;
-      errorMessage = constant.ErrorMessage.ApplicationError;
+      // Handle other component types as before
+      let result = await databaseModule.knex.raw(
+        `CALL usp_get_admin_components_details('${resolvedResult.componentType}','${resolvedResult.componentRef}')`
+      );
+
+      logger.logInfo(
+        `getAdminComponentDetailsInDB() :: Data Saved Successfully${JSON.stringify(
+          result[0]
+        )}`
+      );
+      return result[0];
     }
-    functionContext.error = new coreRequestModel.ErrorModel(
-      errorMessage,
-      errorCode,
-JSON.stringify(errGetAdminComponentsDetailsInDB)
-    );
-    throw functionContext.error;
+  } catch (errGetAdminComponentsDetailsInDB) {
+    logger.logInfo(`getAdminComponentDetailsInDB() :: Error :: ${errGetAdminComponentsDetailsInDB}`);
+    throw errGetAdminComponentsDetailsInDB;
   }
 };
 
@@ -406,7 +411,7 @@ module.exports.deleteAdminComponentListInDB = async (
     functionContext.error = new coreRequestModel.ErrorModel(
       errorMessage,
       errorCode,
-JSON.stringify(errdeleteAdminComponentListInDB)
+      JSON.stringify(errdeleteAdminComponentListInDB)
     );
     throw functionContext.error;
   }
@@ -811,6 +816,57 @@ module.exports.fetchMediaFromDB = async (functionContext, resolvedResult) => {
         sqlMessage: errsaveMonitorDB.sqlMessage,
         stack: errsaveMonitorDB.stack,
       }
+    );
+    throw functionContext.error;
+  }
+};
+
+module.exports.updateMonitorStatusDB = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+  logger.logInfo("updateMonitorStatusDB() Invoked!");
+
+  try {
+    // ensure boolean -> numeric for stored proc
+    const isRunning = resolvedResult.isPlaylistRunning ? 1 : 0;
+    // protect quotes in error message
+    const errMsg = resolvedResult.errorMessage ? resolvedResult.errorMessage.replace(/'/g, "''") : null;
+    const playlistRef = resolvedResult.playlistRef ? resolvedResult.playlistRef : null;
+
+    let query = `CALL usp_update_monitor_status('${resolvedResult.monitorRef}','${playlistRef}',${isRunning},${errMsg ? `'${errMsg}'` : 'NULL'})`;
+    logger.logInfo(`updateMonitorStatusDB() :: Query :: ${query}`);
+
+    let rows = await databaseModule.knex.raw(query);
+    logger.logInfo(`updateMonitorStatusDB() :: Returned Result :: ${JSON.stringify(rows[0])}`);
+    return rows[0];
+  } catch (errUpdateMonitorStatus) {
+    logger.logInfo(`updateMonitorStatusDB() :: Error :: ${JSON.stringify(errUpdateMonitorStatus)}`);
+    functionContext.error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.ApplicationError,
+      constant.ErrorCode.ApplicationError,
+      JSON.stringify(errUpdateMonitorStatus)
+    );
+    throw functionContext.error;
+  }
+};
+
+module.exports.fetchAdminMonitorsStatusDB = async (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+  logger.logInfo("fetchAdminMonitorsStatusDB() Invoked!");
+
+  try {
+    let query = `CALL usp_fetch_admin_monitors_status('${resolvedResult.adminRef}')`;
+    logger.logInfo(`fetchAdminMonitorsStatusDB() :: Query :: ${query}`);
+
+    let rows = await databaseModule.knex.raw(query);
+    logger.logInfo(`fetchAdminMonitorsStatusDB() :: Returned Result :: ${JSON.stringify(rows[0])}`);
+    // return first result set
+    return rows[0];
+  } catch (errFetchAdminMonitorsStatus) {
+    logger.logInfo(`fetchAdminMonitorsStatusDB() :: Error :: ${JSON.stringify(errFetchAdminMonitorsStatus)}`);
+    functionContext.error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.ApplicationError,
+      constant.ErrorCode.ApplicationError,
+      JSON.stringify(errFetchAdminMonitorsStatus)
     );
     throw functionContext.error;
   }

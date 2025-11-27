@@ -72,10 +72,18 @@ module.exports.savePlaylistRequest = (requestParams) => {
     isActive: joi.number().required(),
     playlist: joi
       .array()
-      .items({
-        MediaRef: joi.string().required(),
-        IsActive: joi.number().required().allow(1, 0),
-      })
+      .items(
+        joi.object({
+          MediaRef: joi.string().required(),
+          IsActive: joi.number().required().allow(1, 0),
+          Duration: joi
+            .number()
+            .integer()
+            .min(1)
+            .optional()
+            .default(10), // NEW: per-media duration in seconds, default 10
+        })
+      )
       .optional()
       .allow(null),
     currentTs: joi.string().optional(),
@@ -192,10 +200,19 @@ module.exports.monitorLoginRequest = (requestParams) => {
   return joiSchema.validate(requestParams);
 };
 
-module.exports.updateAllMonitorsRequest = (requestParams) => {
+module.exports.updateMonitorStatusRequest = (requestParams) => {
   var joiSchema = joi.object({
-    monitorList: joi.array(),
-    playlistRef: joi.string(),
+    monitorRef: joi.string().required(),
+    playlistRef: joi.string().allow(null, ""),
+    isPlaylistRunning: joi.boolean().required(),
+    errorMessage: joi.string().optional().allow(null, ""),
+  });
+  return joiSchema.validate(requestParams);
+};
+
+module.exports.fetchAdminMonitorsStatusRequest = (requestParams) => {
+  var joiSchema = joi.object({
+    adminRef: joi.string().required(),
   });
   return joiSchema.validate(requestParams);
 };

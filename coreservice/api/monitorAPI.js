@@ -3,11 +3,7 @@ var coreRequestModel = require("../models/coreServiceModel");
 var constant = require("../common/constant");
 var requestType = constant.RequestType;
 var appLib = require("applib");
-var bcrypt = require("bcryptjs");
-var settings = require("../common/settings").Settings;
 var joiValidationModel = require("../models/validationModel");
-const mailSettings = require("../common/settings").MailSettings;
-var mailer = new appLib.Mailer(mailSettings);
 var moment = require("moment-timezone");
 
 module.exports.MonitorLogin = async (req, res) => {
@@ -372,4 +368,119 @@ var getSlideTime = (functionContext, resolvedResult) => {
   logger.logInfo(`getSlideTime() invoked`);
 
   return resolvedResult[0][0].SlideTime;
+};
+
+module.exports.UpdateMonitorStatus = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+  logger.logInfo(`UpdateMonitorStatus invoked()!!`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.UPDATE_MONITOR_STATUS || 'UPDATE_MONITOR_STATUS',
+    null,
+    res,
+    logger
+  );
+
+  var updateRequest = new coreRequestModel.UpdateMonitorStatusRequest
+    ? new coreRequestModel.UpdateMonitorStatusRequest(req)
+    : new coreRequestModel.UpdateMonitorStatusRequest(req);
+  // validation
+  var validateRequest = joiValidationModel.updateMonitorStatusRequest(updateRequest);
+
+  if (validateRequest.error) {
+    functionContext.error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.Invalid_Request,
+      constant.ErrorCode.Invalid_Request,
+      validateRequest.error.details
+    );
+    logger.logInfo(`UpdateMonitorStatus() Error:: Invalid Request :: ${JSON.stringify(updateRequest)}`);
+    updateMonitorStatusResponse(functionContext, null);
+    return;
+  }
+
+  try {
+    let dbResult = await databaseHelper.updateMonitorStatusDB(functionContext, {
+      monitorRef: updateRequest.monitorRef,
+      playlistRef: updateRequest.playlistRef,
+      isPlaylistRunning: updateRequest.isPlaylistRunning,
+      errorMessage: updateRequest.errorMessage,
+    });
+
+    updateMonitorStatusResponse(functionContext, dbResult);
+  } catch (err) {
+    logger.logInfo(`UpdateMonitorStatus() :: Error :: ${JSON.stringify(err)}`);
+    updateMonitorStatusResponse(functionContext, null);
+  }
+};
+
+var updateMonitorStatusResponse = (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+  logger.logInfo(`updateMonitorStatusResponse() invoked`);
+
+  var resp = new coreRequestModel.UpdateMonitorStatusResponse();
+  resp.RequestID = functionContext.requestID;
+
+  if (functionContext.error) {
+    resp.Error = functionContext.error;
+    resp.Details = null;
+  } else {
+    resp.Error = null;
+    // resolvedResult may be result set; return minimal useful info
+    resp.Details = resolvedResult && resolvedResult[0] ? resolvedResult[0] : resolvedResult;
+  }
+  appLib.SendHttpResponse(functionContext, resp);
+  logger.logInfo(`updateMonitorStatusResponse completed`);
+};
+
+module.exports.FetchAdminMonitorsStatus = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+  logger.logInfo(`FetchAdminMonitorsStatus invoked()!!`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.FETCH_ADMIN_MONITORS_STATUS || 'FETCH_ADMIN_MONITORS_STATUS',
+    null,
+    res,
+    logger
+  );
+
+  var fetchRequest = new coreRequestModel.FetchAdminMonitorsStatusRequest(req);
+
+  var validateRequest = joiValidationModel.fetchAdminMonitorsStatusRequest(fetchRequest);
+  if (validateRequest.error) {
+    functionContext.error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.Invalid_Request,
+      constant.ErrorCode.Invalid_Request,
+      validateRequest.error.details
+    );
+    logger.logInfo(`FetchAdminMonitorsStatus() Error:: Invalid Request :: ${JSON.stringify(fetchRequest)}`);
+    fetchAdminMonitorsStatusResponse(functionContext, null);
+    return;
+  }
+
+  try {
+    let dbResult = await databaseHelper.fetchAdminMonitorsStatusDB(functionContext, { adminRef: fetchRequest.adminRef });
+    fetchAdminMonitorsStatusResponse(functionContext, dbResult);
+  } catch (err) {
+    logger.logInfo(`FetchAdminMonitorsStatus() :: Error :: ${JSON.stringify(err)}`);
+    fetchAdminMonitorsStatusResponse(functionContext, null);
+  }
+};
+
+var fetchAdminMonitorsStatusResponse = (functionContext, resolvedResult) => {
+  var logger = functionContext.logger;
+  logger.logInfo(`fetchAdminMonitorsStatusResponse() invoked`);
+
+  var resp = new coreRequestModel.FetchAdminMonitorsStatusResponse();
+  resp.RequestID = functionContext.requestID;
+
+  if (functionContext.error) {
+    resp.Error = functionContext.error;
+    resp.Details = null;
+  } else {
+    resp.Error = null;
+    // normalized details: return first result set or empty array
+    resp.Details = resolvedResult && resolvedResult[0] ? resolvedResult[0] : resolvedResult;
+  }
+  appLib.SendHttpResponse(functionContext, resp);
+  logger.logInfo(`fetchAdminMonitorsStatusResponse completed`);
 };
