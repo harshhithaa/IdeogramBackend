@@ -262,7 +262,7 @@ module.exports.getAdminComponentListInDB = async (
     functionContext.error = new coreRequestModel.ErrorModel(
       errorMessage,
       errorCode,
-JSON.stringify(errSaveDeliveryDetailsInDB)
+      JSON.stringify(errSaveDeliveryDetailsInDB)
     );
     throw functionContext.error;
   }
@@ -308,7 +308,7 @@ module.exports.getAdminComponentDetailsInDB = async (
     functionContext.error = new coreRequestModel.ErrorModel(
       errorMessage,
       errorCode,
-JSON.stringify(errGetAdminComponentsDetailsInDB)
+      JSON.stringify(errGetAdminComponentsDetailsInDB)
     );
     throw functionContext.error;
   }
@@ -406,7 +406,7 @@ module.exports.deleteAdminComponentListInDB = async (
     functionContext.error = new coreRequestModel.ErrorModel(
       errorMessage,
       errorCode,
-JSON.stringify(errdeleteAdminComponentListInDB)
+      JSON.stringify(errdeleteAdminComponentListInDB)
     );
     throw functionContext.error;
   }
@@ -812,6 +812,77 @@ module.exports.fetchMediaFromDB = async (functionContext, resolvedResult) => {
         stack: errsaveMonitorDB.stack,
       }
     );
+    throw functionContext.error;
+  }
+};
+
+module.exports.getAdminComponentsWithPaginationDB = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("getAdminComponentsWithPaginationDB() Invoked!");
+
+  const {
+    componentType,
+    searchText,
+    mediaType,
+    isActive,
+    userId,  // This should now contain the logged-in user's ID
+    pageNumber,
+    pageSize
+  } = resolvedResult;
+
+  logger.logInfo(
+    `getAdminComponentsWithPaginationDB() :: Parameters: componentType=${componentType}, userId=${userId}, pageNumber=${pageNumber}, pageSize=${pageSize}`
+  );
+
+  logger.logInfo(
+    `getAdminComponentsWithPaginationDB() :: CALL usp_list_admin_components(${componentType}, '${searchText || ''}', ${mediaType ? `'${mediaType}'` : 'NULL'}, ${isActive !== null && isActive !== undefined ? isActive : 'NULL'}, ${userId || 'NULL'}, ${pageNumber || 1}, ${pageSize || 10})`
+  );
+
+  try {
+    let result = await databaseModule.knex.raw(
+      `CALL usp_list_admin_components(?, ?, ?, ?, ?, ?, ?)`,
+      [
+        componentType,
+        searchText || '',
+        mediaType || null,
+        isActive !== null && isActive !== undefined ? isActive : null,
+        userId || null,  // Logged-in user ID
+        pageNumber || 1,
+        pageSize || 10
+      ]
+    );
+
+    logger.logInfo(
+      `getAdminComponentsWithPaginationDB() :: Raw result structure: ${JSON.stringify(result[0])}`
+    );
+
+    const resultData = result[0][0] || [];
+
+    logger.logInfo(
+      `getAdminComponentsWithPaginationDB() :: Success - Retrieved ${resultData.length} records for userId: ${userId}`
+    );
+
+    return resultData;
+  } catch (errgetAdminComponentsWithPaginationDB) {
+    logger.logInfo(
+      `getAdminComponentsWithPaginationDB() :: Exception Occurred: ${errgetAdminComponentsWithPaginationDB.message}`
+    );
+    logger.logInfo(
+      `getAdminComponentsWithPaginationDB() :: Exception Stack: ${errgetAdminComponentsWithPaginationDB.stack}`
+    );
+
+    var errorCode = constant.ErrorCode.ApplicationError;
+    var errorMessage = constant.ErrorMessage.ApplicationError;
+
+    functionContext.error = new coreRequestModel.ErrorModel(
+      errorMessage,
+      errorCode,
+      errgetAdminComponentsWithPaginationDB.message
+    );
+
     throw functionContext.error;
   }
 };

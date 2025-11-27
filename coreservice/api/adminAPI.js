@@ -1302,3 +1302,157 @@ var processVideo = async (video) => {
       .save(`./uploads/${basename}.mp4`);
   });
 };
+
+module.exports.GetAdminComponentsWithPagination = async (req, res) => {
+  var logger = new appLib.Logger(req.originalUrl, res.apiContext.requestID);
+
+  logger.logInfo(`GetAdminComponentsWithPagination invoked()!!`);
+  logger.logInfo(`Query params: ${JSON.stringify(req.query)}`);
+
+  var functionContext = new coreRequestModel.FunctionContext(
+    requestType.GETADMINCOMPONENTSWITHPAGINATION,
+    null,
+    res,
+    logger
+  );
+
+  try {
+    var getAdminComponentWithPaginationRequest = 
+      new coreRequestModel.GetAdminComponentWithPaginationRequest(req);
+
+    logger.logInfo(
+      `GetAdminComponentsWithPagination() :: Request Object : ${JSON.stringify(getAdminComponentWithPaginationRequest)}`
+    );
+
+    var validateRequest = joiValidationModel.getAdminComponentWithPaginationRequest(
+      getAdminComponentWithPaginationRequest
+    );
+
+    if (validateRequest.error) {
+      logger.logInfo(
+        `GetAdminComponentsWithPagination() :: Validation Error: ${JSON.stringify(validateRequest.error)}`
+      );
+
+      functionContext.error = new coreRequestModel.ErrorModel(
+        constant.ErrorMessage.ValidationError,
+        constant.ErrorCode.InvalidInput,
+        validateRequest.error.details[0].message
+      );
+
+      return getAdminComponentsWithPaginationResponse(functionContext, null);
+    }
+
+    // **KEY CHANGE: Get userId from authenticated session**
+    var requestContext = {
+      ...getAdminComponentWithPaginationRequest,
+      userRef: functionContext.userRef,
+      // Override userId with the logged-in user's ID from session
+      userId: res.apiContext.userID || null  // <-- IMPORTANT CHANGE
+    };
+
+    functionContext.requestContext = requestContext;
+    
+    logger.logInfo(`Request context with userId: ${JSON.stringify(requestContext)}`);
+
+    await databaseHelper
+      .getAdminComponentsWithPaginationDB(functionContext, requestContext)
+      .then(async (resolvedResult) => {
+        logger.logInfo(`DB resolved with ${resolvedResult?.length || 0} results`);
+        await getAdminComponentsWithPaginationResponse(functionContext, resolvedResult);
+      })
+      .catch((rejectedResult) => {
+        logger.logInfo(
+          `GetAdminComponentsWithPagination() rejectedResult: ${JSON.stringify(rejectedResult)}`
+        );
+        functionContext.error = rejectedResult;
+        return getAdminComponentsWithPaginationResponse(functionContext, null);
+      });
+  } catch (errGetAdminComponentsWithPagination) {
+    logger.logInfo(
+      `GetAdminComponentsWithPagination() :: Caught Exception: ${errGetAdminComponentsWithPagination.message}`
+    );
+    logger.logInfo(
+      `Stack trace: ${errGetAdminComponentsWithPagination.stack}`
+    );
+
+    functionContext.error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.ApplicationError,
+      constant.ErrorCode.ApplicationError,
+      errGetAdminComponentsWithPagination.message
+    );
+
+    return getAdminComponentsWithPaginationResponse(functionContext, null);
+  }
+};
+
+var getAdminComponentsWithPaginationResponse = async (
+  functionContext,
+  resolvedResult
+) => {
+  var logger = functionContext.logger;
+  logger.logInfo("getAdminComponentsWithPaginationResponse() invoked!!");
+
+  var response = new coreRequestModel.GetAdminComponentWithPaginationResponse();
+  response.RequestID = functionContext.requestID;
+
+  // Check for error - handle empty objects
+  if (functionContext.error != null && Object.keys(functionContext.error).length > 0) {
+    logger.logInfo(
+      `getAdminComponentsWithPaginationResponse() :: Error: ${JSON.stringify(functionContext.error)}`
+    );
+    response.Error = functionContext.error;
+    return functionContext.res.send(response);
+  }
+
+  logger.logInfo(`getAdminComponentsWithPaginationResponse() :: Processing results`);
+
+  try {
+    var componentListData = resolvedResult;
+    
+    if (!componentListData || componentListData.length === 0) {
+      logger.logInfo(`getAdminComponentsWithPaginationResponse() :: No data found`);
+      response.Details = {
+        ComponentList: [],
+        TotalRecords: 0,
+        PageNumber: functionContext.requestContext?.pageNumber || 1,
+        PageSize: functionContext.requestContext?.pageSize || 10,
+        TotalPages: 0
+      };
+      return functionContext.res.send(response);
+    }
+
+    const totalRecords = componentListData[0].TotalRecords || 0;
+    const pageNumber = functionContext.requestContext?.pageNumber || 1;
+    const pageSize = functionContext.requestContext?.pageSize || 10;
+    const totalPages = Math.ceil(totalRecords / pageSize);
+
+    response.Details = {
+      ComponentList: componentListData,
+      TotalRecords: totalRecords,
+      PageNumber: pageNumber,
+      PageSize: pageSize,
+      TotalPages: totalPages
+    };
+
+    logger.logInfo(
+      `getAdminComponentsWithPaginationResponse() :: Returning ${componentListData.length} items, Total: ${totalRecords}, Page: ${pageNumber}/${totalPages}`
+    );
+
+    return functionContext.res.send(response);
+  } catch (errProcessResponse) {
+    logger.logInfo(
+      `getAdminComponentsWithPaginationResponse() :: Error: ${errProcessResponse.message}`
+    );
+    logger.logInfo(
+      `Stack trace: ${errProcessResponse.stack}`
+    );
+
+    response.Error = new coreRequestModel.ErrorModel(
+      constant.ErrorMessage.ApplicationError,
+      constant.ErrorCode.ApplicationError,
+      errProcessResponse.message
+    );
+
+    return functionContext.res.send(response);
+  }
+};

@@ -2,18 +2,19 @@ var momentTimezone = require("moment-timezone");
 
 class functionContext {
   constructor(requestType, error, res, logger) {
-    (this.requestType = requestType),
-      (this.requestID = res.apiContext.requestID),
-      (this.userRef = res.apiContext.userRef),
-      (this.userType = res.apiContext.userType),
-      (this.userFirebaseAuth = res.apiContext.userFirebaseAuth),
-      (this.error = null),
-      (this.res = res),
-      (this.logger = logger),
-      (this.currentTs = momentTimezone
-        .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
-        .tz("Asia/Kolkata")
-        .format("YYYY-MM-DD HH:mm:ss"));
+    this.requestType = requestType;
+    this.requestID = res.apiContext.requestID;
+    this.userRef = res.apiContext.userRef;
+    this.userType = res.apiContext.userType;
+    this.userFirebaseAuth = res.apiContext.userFirebaseAuth;
+    this.error = null;
+    this.res = res;
+    this.logger = logger;
+    this.requestContext = null; // Add this line
+    this.currentTs = momentTimezone
+      .utc(new Date(), "YYYY-MM-DD HH:mm:ss")
+      .tz("Asia/Kolkata")
+      .format("YYYY-MM-DD HH:mm:ss");
   }
 }
 
@@ -330,6 +331,49 @@ class fetchMediaResponse {
   }
 }
 
+class getAdminComponentWithPaginationRequest {
+  constructor(req) {
+    // Handle both componenttype and componentType (case-insensitive)
+    const compType = req.query.componenttype || req.query.componentType || req.query.ComponentType;
+    this.componentType = compType ? parseInt(compType) : null;
+    
+    // Handle searchtext variations
+    this.searchText = req.query.searchtext || req.query.searchText || '';
+    
+    // Handle mediatype variations
+    this.mediaType = req.query.mediatype || req.query.mediaType || null;
+    
+    // Handle isactive variations - DEFAULT TO 1 (active only)
+    const activeStatus = req.query.isactive || req.query.isActive;
+    this.isActive = activeStatus !== undefined ? parseInt(activeStatus) : 1;
+    
+    // Handle userid variations
+    this.userId = req.query.userid || req.query.userId || null;
+    
+    // Handle pagenumber variations
+    const pageNum = req.query.pagenumber || req.query.pageNumber;
+    this.pageNumber = pageNum ? parseInt(pageNum) : 1;
+    
+    // Handle pagesize variations - DEFAULT TO 12
+    const pageSz = req.query.pagesize || req.query.pageSize;
+    this.pageSize = pageSz ? parseInt(pageSz) : 12;
+  }
+}
+
+class getAdminComponentWithPaginationResponse {
+  constructor() {
+    this.Error = null;
+    this.Details = {
+      ComponentList: [],
+      TotalRecords: 0,
+      PageNumber: 1,
+      PageSize: 10,
+      TotalPages: 0
+    };
+    this.RequestID = null;
+  }
+}
+
 module.exports.ErrorModel = errorModel;
 module.exports.AdminLoginRequest = adminLoginRequest;
 module.exports.AdminLoginResponse = adminLoginResponse;
@@ -370,3 +414,5 @@ module.exports.UpdateAllMonitorsRequest = updateAllMonitorsRequest;
 module.exports.UpdateAllMonitorsResponse = updateAllMonitorsResponse;
 module.exports.FetchMediaRequest = fetchMediaRequest;
 module.exports.FetchMediaResponse = fetchMediaResponse;
+module.exports.GetAdminComponentWithPaginationRequest = getAdminComponentWithPaginationRequest;
+module.exports.GetAdminComponentWithPaginationResponse = getAdminComponentWithPaginationResponse;

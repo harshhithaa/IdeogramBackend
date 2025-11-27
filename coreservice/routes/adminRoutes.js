@@ -9,6 +9,7 @@ router.post("/saveplaylist", adminApi.SavePlaylist);
 router.post("/saveschedule", adminApi.SaveSchedule);
 router.post("/savemonitor", adminApi.SaveMonitor);
 router.get("/componentlist", adminApi.GetAdminComponents);
+router.get("/componentlistpaginated", adminApi.GetAdminComponentsWithPagination); // New route
 router.post("/deletecomponentlist", adminApi.DeleteAdminComponents);
 router.post(
   "/validatedeletecomponentlist",
