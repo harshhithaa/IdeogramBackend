@@ -9,6 +9,10 @@ router.post("/saveplaylist", adminApi.SavePlaylist);
 router.post("/saveschedule", adminApi.SaveSchedule);
 router.post("/savemonitor", adminApi.SaveMonitor);
 router.get("/componentlist", adminApi.GetAdminComponents);
+
+// ADD THIS ROUTE to support the frontend paginated endpoint
+router.get("/componentlistpaginated", adminApi.GetAdminComponents);
+
 router.post("/deletecomponentlist", adminApi.DeleteAdminComponents);
 router.post(
   "/validatedeletecomponentlist",
