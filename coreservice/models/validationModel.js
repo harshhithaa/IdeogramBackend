@@ -127,7 +127,7 @@ module.exports.saveMonitorRequest = (requestParams) => {
     isActive: joi.number().required(),
     currentTs: joi.string().optional(),
     orientation: joi.string().required(),
-    slideTime: joi.number().required(),
+    // slideTime removed: per-item durations handled at media/playlist level
   });
   return joiSchema.validate(requestParams);
 };

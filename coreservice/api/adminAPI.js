@@ -1117,13 +1117,31 @@ var processComponentDetailsData = async (
 
   if (resolvedResult) {
     if (requestDetails.componentType == constant.COMPONENTS.Media) {
+      // normalize single media item
       resolvedData.Media = resolvedResult[0][0];
+      if (resolvedData.Media) {
+        resolvedData.Media.Duration =
+          resolvedData.Media.MediaDuration !== undefined
+            ? resolvedData.Media.MediaDuration
+            : resolvedData.Media.Duration !== undefined
+            ? resolvedData.Media.Duration
+            : null;
+      }
       details = {
         ...resolvedData,
       };
     } else if (requestDetails.componentType == constant.COMPONENTS.Playlist) {
       resolvedData.Playlist = resolvedResult[0][0];
-      resolvedData.Media = resolvedResult[1];
+      // resolvedResult[1] is media list for playlist — normalize durations
+      resolvedData.Media = (resolvedResult[1] || []).map((m) => ({
+        ...m,
+        Duration:
+          m.MediaDuration !== undefined
+            ? m.MediaDuration
+            : m.Duration !== undefined
+            ? m.Duration
+            : null,
+      }));
       details = {
         ...resolvedData,
       };
@@ -1214,13 +1232,21 @@ var processComponentListData = async (
 
   if (resolvedResult) {
     if (requestDetails.componentType == constant.COMPONENTS.Media) {
-      resolvedData.ComponentList = resolvedResult[0];
+      // normalize media list durations
+      resolvedData.ComponentList = (resolvedResult[0] || []).map((m) => ({
+        ...m,
+        Duration: m.MediaDuration !== undefined ? m.MediaDuration : m.Duration !== undefined ? m.Duration : null,
+      }));
       details = {
         ...resolvedData,
       };
     } else if (requestDetails.componentType == constant.COMPONENTS.Playlist) {
       resolvedData.ComponentList = resolvedResult[0];
-      resolvedData.Media = resolvedResult[1];
+      // normalize media list for playlists
+      resolvedData.Media = (resolvedResult[1] || []).map((m) => ({
+        ...m,
+        Duration: m.MediaDuration !== undefined ? m.MediaDuration : m.Duration !== undefined ? m.Duration : null,
+      }));
 
       resolvedData.ComponentList.forEach((item) => {
         Media = appLib.FilterArray(resolvedData.Media, item.Id, "PlaylistId");

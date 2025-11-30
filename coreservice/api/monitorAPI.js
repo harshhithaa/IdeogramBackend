@@ -128,16 +128,10 @@ module.exports.FetchMonitorDetails = async (req, res) => {
       fetchMonitorDetailsResult
     );
 
-    let slideTime = await getSlideTime(
-      functionContext,
-      fetchMonitorDetailsResult
-    );
-
     fetchMonitorDetailsResponse(
       functionContext,
       processScheduleDetailsResult,
-      orientation,
-      slideTime
+      orientation
     );
   } catch (errMonitorDetails) {
     if (!errMonitorDetails.ErrorMessage && !errMonitorDetails.ErrorCode) {
@@ -270,8 +264,7 @@ var saveMonitorLoginResponse = (functionContext, resolvedResult) => {
 var fetchMonitorDetailsResponse = (
   functionContext,
   resolvedResult,
-  orientation,
-  slideTime
+  orientation
 ) => {
   var logger = functionContext.logger;
 
@@ -287,7 +280,6 @@ var fetchMonitorDetailsResponse = (
     MonitorDetailsResponse.Error = null;
     MonitorDetailsResponse.Details.Orientation = orientation;
     MonitorDetailsResponse.Details.MediaList = resolvedResult;
-    MonitorDetailsResponse.Details.SlideTime = slideTime;
     // MonitorDetailsResponse.Details.ScheduleDetails = resolvedResult[2] ? resolvedResult[2][0] :null;
   }
   appLib.SendHttpResponse(functionContext, MonitorDetailsResponse);
@@ -355,6 +347,24 @@ var processScheduleDetails = (functionContext, resolvedResult) => {
     finalPlaylist = defaultPlaylist;
   }
 
+  // Normalize duration field: some DB selects return `MediaDuration`, ensure clients receive `Duration`
+  try {
+    finalPlaylist = (finalPlaylist || []).map((item) => {
+      const duration =
+        item.MediaDuration !== undefined
+          ? item.MediaDuration
+          : item.Duration !== undefined
+          ? item.Duration
+          : null;
+      return {
+        ...item,
+        Duration: duration,
+      };
+    });
+  } catch (e) {
+    logger.logInfo(`processScheduleDetails() :: normalization error ${e}`);
+  }
+
   return finalPlaylist;
 };
 
@@ -366,10 +376,4 @@ var getOrientation = (functionContext, resolvedResult) => {
   return resolvedResult[0][0].Orientation;
 };
 
-var getSlideTime = (functionContext, resolvedResult) => {
-  var logger = functionContext.logger;
-
-  logger.logInfo(`getSlideTime() invoked`);
-
-  return resolvedResult[0][0].SlideTime;
-};
+// slideTime is no longer returned by the backend; per-media Duration is used instead
